@@ -39,6 +39,20 @@ enum DictationAIPostProcessingGate {
         return self.isProviderConfigured(route: route, settings: settings)
     }
 
+    static func usesOnlyLocalProvider(
+        for slot: SettingsStore.DictationShortcutSlot,
+        appBundleID: String? = nil
+    ) -> Bool {
+        let settings = SettingsStore.shared
+        let route = DictationProviderRoute.resolve(
+            settings: settings,
+            dictationSlot: slot,
+            appBundleID: appBundleID
+        )
+        if route.usesPrivateAI { return true }
+        return self.isLocalEndpoint(route.baseURL)
+    }
+
     /// Returns true if the selected AI provider is currently verified/configured,
     /// regardless of the AI toggle or prompt selection. Used to gate prompt-mode hotkey AI processing.
     static func isProviderConfigured() -> Bool {

@@ -242,6 +242,7 @@ struct ContentView: View {
     @State private var previousSidebarItem: SidebarItem? = nil // Track previous for mode transitions
     @State private var playgroundUsed: Bool = SettingsStore.shared.playgroundUsed
     @State private var recordingAppInfo: (name: String, bundleId: String, windowTitle: String)? = nil
+    @State private var recordingPrivacyLockDecision: PrivacyLockDecision = .unlocked
     @State private var recordingPrecedingText: String = ""
 
     // Command Mode State
@@ -1634,9 +1635,15 @@ struct ContentView: View {
 
         let info = self.getCurrentAppInfo()
         self.recordingAppInfo = info
+        self.recordingPrivacyLockDecision = PrivacyLockPolicy.currentDecision(
+            appName: info.name,
+            bundleID: info.bundleId,
+            windowTitle: info.windowTitle
+        )
         self.rewriteModeService.setPromptAppBundleID(info.bundleId)
+        let loggedTitle = self.recordingPrivacyLockDecision.isLocked ? "<redacted>" : info.windowTitle
         DebugLogger.shared.debug(
-            "Captured recording app context: app=\(info.name), bundleId=\(info.bundleId), title=\(info.windowTitle)",
+            "Captured recording app context: app=\(info.name), bundleId=\(info.bundleId), title=\(loggedTitle), privacyLocked=\(self.recordingPrivacyLockDecision.isLocked)",
             source: "ContentView"
         )
     }
@@ -2043,9 +2050,18 @@ struct ContentView: View {
         let activeDictationSlot = self.currentDictationShortcutSlot(for: modeAtStop)
         let promptOverride = self.promptModeOverrideText
         let promptTest = DictationPromptTestCoordinator.shared
-        let shouldUseAIOnStop = activeDictationSlot.map {
+        let privacyAllowsAIOnStop = !self.recordingPrivacyLockDecision.isLocked || activeDictationSlot.map {
+            DictationAIPostProcessingGate.usesOnlyLocalProvider(
+                for: $0,
+                appBundleID: self.recordingAppInfo?.bundleId
+            )
+        } ?? DictationAIPostProcessingGate.usesOnlyLocalProvider(
+            for: .primary,
+            appBundleID: self.recordingAppInfo?.bundleId
+        )
+        let shouldUseAIOnStop = privacyAllowsAIOnStop && (activeDictationSlot.map {
             DictationAIPostProcessingGate.isConfigured(for: $0, appBundleID: self.recordingAppInfo?.bundleId)
-        } ?? DictationAIPostProcessingGate.isConfigured(for: .primary, appBundleID: self.recordingAppInfo?.bundleId)
+        } ?? DictationAIPostProcessingGate.isConfigured(for: .primary, appBundleID: self.recordingAppInfo?.bundleId))
         let shouldHideOverlayOnStop = route == .normal &&
             !wasRewriteMode &&
             !wasCommandMode &&
@@ -2147,15 +2163,24 @@ struct ContentView: View {
 
         // If this was a rewrite recording, process the rewrite instead of typing
         if wasRewriteMode {
-            DebugLogger.shared.info("Processing rewrite with instruction: \(transcribedText)", source: "ContentView")
+            if self.recordingPrivacyLockDecision.isLocked {
+                await self.showPrivacyLockBlockedMode("Rewrite Mode")
+                return
+            }
+            DebugLogger.shared.info("Processing rewrite instruction (chars=\(transcribedText.count))", source: "ContentView")
             let appInfo = self.recordingAppInfo ?? self.getCurrentAppInfo()
             await self.processRewriteWithVoiceInstruction(transcribedText, appInfo: appInfo)
             return
         }
 
-        // If this was a command recording, process the command
+        // Command Mode is intentionally suppressed in protected applications even when
+        // its global shortcut is enabled.
         if wasCommandMode {
-            DebugLogger.shared.info("Processing command: \(transcribedText)", source: "ContentView")
+            if self.recordingPrivacyLockDecision.isLocked {
+                await self.showPrivacyLockBlockedMode("Command Mode")
+                return
+            }
+            DebugLogger.shared.info("Processing voice command (chars=\(transcribedText.count))", source: "ContentView")
             await self.processCommandWithVoice(transcribedText)
             return
         }
@@ -2171,9 +2196,12 @@ struct ContentView: View {
             windowTitle: appInfo.windowTitle
         )
 
-        let shouldUseAI = activeDictationSlot.map {
+        let privacyAllowsAI = !self.recordingPrivacyLockDecision.isLocked || activeDictationSlot.map {
+            DictationAIPostProcessingGate.usesOnlyLocalProvider(for: $0, appBundleID: appInfo.bundleId)
+        } ?? DictationAIPostProcessingGate.usesOnlyLocalProvider(for: .primary, appBundleID: appInfo.bundleId)
+        let shouldUseAI = privacyAllowsAI && (activeDictationSlot.map {
             DictationAIPostProcessingGate.isConfigured(for: $0, appBundleID: appInfo.bundleId)
-        } ?? DictationAIPostProcessingGate.isConfigured(for: .primary, appBundleID: appInfo.bundleId)
+        } ?? DictationAIPostProcessingGate.isConfigured(for: .primary, appBundleID: appInfo.bundleId))
         let transcriptionModelInfo = self.currentTranscriptionModelInfo()
 
         if shouldUseAI {
@@ -2312,7 +2340,10 @@ struct ContentView: View {
         let isFluidFrontmost = frontmostApp?.bundleIdentifier == Bundle.main.bundleIdentifier
 
         // Save to transcription history (transcription mode only, if enabled)
-        if shouldPersistOutputs, SettingsStore.shared.saveTranscriptionHistory {
+        if shouldPersistOutputs,
+           !self.recordingPrivacyLockDecision.isLocked,
+           SettingsStore.shared.saveTranscriptionHistory
+        {
             let historyEntryID = UUID()
             let historyTimestamp = Date()
             TranscriptionHistoryStore.shared.addEntry(
@@ -2336,6 +2367,7 @@ struct ContentView: View {
         // When SpeachText1.0 itself is frontmost, the bound editor already receives `finalText`.
         // Avoid re-inserting or overwriting the clipboard in that self-target case.
         let shouldCopyToClipboard = shouldPersistOutputs &&
+            !self.recordingPrivacyLockDecision.isLocked &&
             SettingsStore.shared.copyTranscriptionToClipboard &&
             !isFluidFrontmost
 
@@ -2664,6 +2696,11 @@ struct ContentView: View {
         }
 
         let appInfo = self.getCurrentAppInfo()
+        let privacyDecision = PrivacyLockPolicy.currentDecision(
+            appName: appInfo.name,
+            bundleID: appInfo.bundleId,
+            windowTitle: appInfo.windowTitle
+        )
         let literalFormattedText = ASRService.applyDictationLiteralFormatting(
             text,
             appName: appInfo.name,
@@ -2688,7 +2725,7 @@ struct ContentView: View {
             windowTitle: appInfo.windowTitle
         )
 
-        if saveToHistory, SettingsStore.shared.saveTranscriptionHistory {
+        if saveToHistory, !privacyDecision.isLocked, SettingsStore.shared.saveTranscriptionHistory {
             TranscriptionHistoryStore.shared.addEntry(
                 rawText: text,
                 processedText: finalText,
@@ -2701,7 +2738,10 @@ struct ContentView: View {
         let frontmostApp = NSWorkspace.shared.frontmostApplication
         let isFluidFrontmost = frontmostApp?.bundleIdentifier == Bundle.main.bundleIdentifier
 
-        if SettingsStore.shared.copyTranscriptionToClipboard, !isFluidFrontmost {
+        if !privacyDecision.isLocked,
+           SettingsStore.shared.copyTranscriptionToClipboard,
+           !isFluidFrontmost
+        {
             ClipboardService.copyToClipboard(finalText)
         }
 
@@ -2740,6 +2780,11 @@ struct ContentView: View {
         var aiFallbackReason: String?
         var postProcessingModel: String?
         let appInfo = self.getCurrentAppInfo()
+        let privacyDecision = PrivacyLockPolicy.currentDecision(
+            appName: appInfo.name,
+            bundleID: appInfo.bundleId,
+            windowTitle: appInfo.windowTitle
+        )
         let normalizedTranscribedText = ASRService.applySpokenPunctuationFormatting(
             transcribedText,
             appName: appInfo.name,
@@ -2747,7 +2792,10 @@ struct ContentView: View {
             windowTitle: appInfo.windowTitle
         )
         var finalText = normalizedTranscribedText
-        let shouldUseAI = DictationAIPostProcessingGate.isConfigured(for: .primary, appBundleID: appInfo.bundleId)
+        let shouldUseAI = (!privacyDecision.isLocked || DictationAIPostProcessingGate.usesOnlyLocalProvider(
+            for: .primary,
+            appBundleID: appInfo.bundleId
+        )) && DictationAIPostProcessingGate.isConfigured(for: .primary, appBundleID: appInfo.bundleId)
         if shouldUseAI {
             postProcessingModel = self.currentDictationAIModelInfo(
                 dictationSlot: .primary,
@@ -2796,7 +2844,7 @@ struct ContentView: View {
             windowTitle: appInfo.windowTitle
         )
 
-        if SettingsStore.shared.saveTranscriptionHistory {
+        if !privacyDecision.isLocked, SettingsStore.shared.saveTranscriptionHistory {
             TranscriptionHistoryStore.shared.addEntry(
                 rawText: transcribedText,
                 processedText: finalText,
@@ -2815,7 +2863,7 @@ struct ContentView: View {
             self.pendingAIReprocessText = nil
         }
 
-        if SettingsStore.shared.copyTranscriptionToClipboard {
+        if !privacyDecision.isLocked, SettingsStore.shared.copyTranscriptionToClipboard {
             ClipboardService.copyToClipboard(finalText)
         }
 
@@ -2851,8 +2899,16 @@ struct ContentView: View {
         appInfo: (name: String, bundleId: String, windowTitle: String)
     ) async {
         self.rewriteModeService.setPromptAppBundleID(appInfo.bundleId)
+        let privacyDecision = PrivacyLockPolicy.currentDecision(
+            appName: appInfo.name,
+            bundleID: appInfo.bundleId,
+            windowTitle: appInfo.windowTitle
+        )
         let hasOriginalText = !self.rewriteModeService.originalText.isEmpty
-        DebugLogger.shared.info("Processing \(hasOriginalText ? "rewrite" : "write/improve") - instruction: '\(instruction)', originalText length: \(self.rewriteModeService.originalText.count)", source: "ContentView")
+        DebugLogger.shared.info(
+            "Processing \(hasOriginalText ? "rewrite" : "write/improve") (instructionChars=\(instruction.count), originalChars=\(self.rewriteModeService.originalText.count))",
+            source: "ContentView"
+        )
 
         // Show processing animation
         self.menuBarManager.setProcessing(true)
@@ -2867,7 +2923,7 @@ struct ContentView: View {
             DebugLogger.shared.info("Rewrite successful, typing result (chars: \(self.rewriteModeService.rewrittenText.count))", source: "ContentView")
 
             // Copy to clipboard as backup
-            if SettingsStore.shared.copyTranscriptionToClipboard {
+            if !privacyDecision.isLocked, SettingsStore.shared.copyTranscriptionToClipboard {
                 ClipboardService.copyToClipboard(self.rewriteModeService.rewrittenText)
             }
 
@@ -2930,6 +2986,7 @@ struct ContentView: View {
             self.menuBarManager.setOverlayMode(.dictation)
         case .edit:
             guard self.activeRecordingMode != .edit || NotchContentState.shared.mode == .dictation else { return }
+            guard !self.blockRiskyModeIfPrivacyLocked("Rewrite Mode") else { return }
             self.setActiveRecordingMode(.edit)
             let hasOriginal = !self.rewriteModeService.originalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             let hasContext = !self.rewriteModeService.selectedContextText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -2943,6 +3000,7 @@ struct ContentView: View {
             self.menuBarManager.setOverlayMode(.edit)
         case .write, .rewrite:
             guard self.activeRecordingMode != .edit || NotchContentState.shared.mode == .dictation else { return }
+            guard !self.blockRiskyModeIfPrivacyLocked("Rewrite Mode") else { return }
             self.setActiveRecordingMode(.edit)
             let hasOriginal = !self.rewriteModeService.originalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             let hasContext = !self.rewriteModeService.selectedContextText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -2966,6 +3024,7 @@ struct ContentView: View {
             self.handleLivePromptModeSwitch(.edit)
         case .command:
             guard self.activeRecordingMode != .command || NotchContentState.shared.mode != .command else { return }
+            guard !self.blockRiskyModeIfPrivacyLocked("Command Mode") else { return }
             self.rewriteModeService.clearState()
             self.setActiveRecordingMode(.command)
             self.menuBarManager.setOverlayMode(.command)
@@ -2975,7 +3034,7 @@ struct ContentView: View {
     // MARK: - Command Mode Voice Processing
 
     private func processCommandWithVoice(_ command: String) async {
-        DebugLogger.shared.info("Processing voice command: '\(command)'", source: "ContentView")
+        DebugLogger.shared.info("Processing voice command (chars=\(command.count))", source: "ContentView")
 
         // Show processing animation
         self.menuBarManager.setProcessing(true)
@@ -2988,6 +3047,28 @@ struct ContentView: View {
         self.menuBarManager.setProcessing(false)
 
         DebugLogger.shared.info("Command processed, conversation stored in Command Mode", source: "ContentView")
+    }
+
+    private func blockRiskyModeIfPrivacyLocked(_ modeName: String) -> Bool {
+        guard self.recordingPrivacyLockDecision.isLocked else { return false }
+        Task { @MainActor in
+            await self.showPrivacyLockBlockedMode(modeName)
+        }
+        return true
+    }
+
+    private func showPrivacyLockBlockedMode(_ modeName: String) async {
+        let reason = PrivacyLockPolicy.reasonText(for: self.recordingPrivacyLockDecision)
+        let detail = reason.isEmpty ? "Sensitive destination detected." : reason
+        DebugLogger.shared.warning("Privacy Lock blocked \(modeName): \(detail)", source: "ContentView")
+        NotchContentState.shared.showAIProcessingFailure(
+            message: "\(modeName) is unavailable while Privacy Lock is active. Normal dictation remains local.",
+            canRetry: false
+        )
+        self.menuBarManager.finishProcessingKeepingOverlayVisible()
+        try? await Task.sleep(nanoseconds: 3_500_000_000)
+        NotchContentState.shared.clearAIProcessingFailure()
+        await self.menuBarManager.finishProcessingAndHideOverlay()
     }
 
     /// Capture app context at start to avoid mismatches if the user switches apps mid-session
@@ -3263,6 +3344,7 @@ struct ContentView: View {
             commandModeCallback: {
                 DebugLogger.shared.info("Command mode triggered", source: "ContentView")
                 self.captureRecordingContext()
+                guard !self.blockRiskyModeIfPrivacyLocked("Command Mode") else { return }
 
                 // Set flag so stopAndProcessTranscription knows to process as command
                 self.setActiveRecordingMode(.command)
@@ -3295,6 +3377,7 @@ struct ContentView: View {
                 guard !self.showPrivateAIEditModeUnavailableIfNeeded() else { return }
 
                 self.captureRecordingContext()
+                guard !self.blockRiskyModeIfPrivacyLocked("Rewrite Mode") else { return }
 
                 // Try to capture text first while still in the other app
                 let captured = self.rewriteModeService.captureSelectedText()

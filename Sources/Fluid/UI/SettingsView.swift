@@ -56,6 +56,7 @@ struct SettingsView: View {
     // which races with SwiftUI's AttributeGraph metadata processing and causes EXC_BAD_ACCESS crashes.
     @State private var cachedDefaultInputUID: String = ""
     @State private var cachedDefaultOutputName: String = ""
+    @State private var showPrivacyLockSettings = false
 
     @State private var rollbackVersion: String = ""
     @State private var isRollingBack: Bool = false
@@ -954,6 +955,31 @@ struct SettingsView: View {
                                             set: { SettingsStore.shared.pauseMediaDuringTranscription = $0 }
                                         )
                                     )
+                                    Divider().opacity(0.2)
+
+                                    self.optionToggleRow(
+                                        title: "Privacy Lock",
+                                        description: "Keep protected-app dictation local, skip history and clipboard copies, and block Command and Rewrite modes.",
+                                        isOn: Binding(
+                                            get: { SettingsStore.shared.privacyLockEnabled },
+                                            set: { SettingsStore.shared.privacyLockEnabled = $0 }
+                                        ),
+                                        allowsDescriptionWrapping: true
+                                    )
+
+                                    HStack {
+                                        Button("Manage Protected Apps…") {
+                                            self.showPrivacyLockSettings = true
+                                        }
+                                        .buttonStyle(.link)
+
+                                        Spacer()
+
+                                        Label("Enabled by default", systemImage: "lock.shield")
+                                            .font(.caption)
+                                            .foregroundStyle(self.settingsSecondaryText)
+                                    }
+                                    .padding(.top, 6)
                                 }
                                 .padding(12)
                             }
@@ -1386,6 +1412,10 @@ struct SettingsView: View {
                 }
             }
             .padding(16)
+        }
+        .sheet(isPresented: self.$showPrivacyLockSettings) {
+            PrivacyLockSettingsView()
+                .appTheme(self.theme)
         }
         .onAppear {
             Task { @MainActor in

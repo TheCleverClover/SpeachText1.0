@@ -2654,6 +2654,41 @@ final class SettingsStore: ObservableObject {
         return false
     }
 
+    // MARK: - Privacy Lock Settings
+
+    var privacyLockEnabled: Bool {
+        get {
+            let value = self.defaults.object(forKey: Keys.privacyLockEnabled)
+            return value as? Bool ?? true
+        }
+        set {
+            objectWillChange.send()
+            self.defaults.set(newValue, forKey: Keys.privacyLockEnabled)
+        }
+    }
+
+    var privacyLockProtectSensitiveWindows: Bool {
+        get {
+            let value = self.defaults.object(forKey: Keys.privacyLockProtectSensitiveWindows)
+            return value as? Bool ?? true
+        }
+        set {
+            objectWillChange.send()
+            self.defaults.set(newValue, forKey: Keys.privacyLockProtectSensitiveWindows)
+        }
+    }
+
+    var privacyLockCustomBundleIDs: [String] {
+        get { self.defaults.stringArray(forKey: Keys.privacyLockCustomBundleIDs) ?? [] }
+        set {
+            objectWillChange.send()
+            let sanitized = Array(Set(newValue.map {
+                $0.trimmingCharacters(in: .whitespacesAndNewlines)
+            }.filter { !$0.isEmpty })).sorted()
+            self.defaults.set(sanitized, forKey: Keys.privacyLockCustomBundleIDs)
+        }
+    }
+
     // MARK: - Command Mode Settings
 
     var commandModeSelectedModel: String? {
@@ -3174,6 +3209,9 @@ final class SettingsStore: ObservableObject {
             autoUpdateCheckEnabled: self.autoUpdateCheckEnabled,
             betaReleasesEnabled: self.betaReleasesEnabled,
             enableDebugLogs: self.enableDebugLogs,
+            privacyLockEnabled: self.privacyLockEnabled,
+            privacyLockProtectSensitiveWindows: self.privacyLockProtectSensitiveWindows,
+            privacyLockCustomBundleIDs: self.privacyLockCustomBundleIDs,
             pressAndHoldMode: self.pressAndHoldMode,
             hotkeyMode: self.hotkeyMode,
             enableStreamingPreview: self.enableStreamingPreview,
@@ -3295,6 +3333,15 @@ final class SettingsStore: ObservableObject {
         self.autoUpdateCheckEnabled = payload.autoUpdateCheckEnabled
         self.betaReleasesEnabled = payload.betaReleasesEnabled
         self.enableDebugLogs = payload.enableDebugLogs
+        if let privacyLockEnabled = payload.privacyLockEnabled {
+            self.privacyLockEnabled = privacyLockEnabled
+        }
+        if let privacyLockProtectSensitiveWindows = payload.privacyLockProtectSensitiveWindows {
+            self.privacyLockProtectSensitiveWindows = privacyLockProtectSensitiveWindows
+        }
+        if let privacyLockCustomBundleIDs = payload.privacyLockCustomBundleIDs {
+            self.privacyLockCustomBundleIDs = privacyLockCustomBundleIDs
+        }
         self.hotkeyMode = payload.hotkeyMode ?? (payload.pressAndHoldMode ? .hold : .toggle)
         self.enableStreamingPreview = payload.enableStreamingPreview
         if let skipSilentRecordingsEnabled = payload.skipSilentRecordingsEnabled {
@@ -5096,6 +5143,9 @@ private extension SettingsStore {
 
         // Command Mode Keys
         static let commandModeSelectedModel = "CommandModeSelectedModel"
+        static let privacyLockEnabled = "PrivacyLockEnabled"
+        static let privacyLockProtectSensitiveWindows = "PrivacyLockProtectSensitiveWindows"
+        static let privacyLockCustomBundleIDs = "PrivacyLockCustomBundleIDs"
         static let commandModeSelectedProviderID = "CommandModeSelectedProviderID"
         static let commandModeHotkeyShortcut = "CommandModeHotkeyShortcut"
         static let commandModeConfirmBeforeExecute = "CommandModeConfirmBeforeExecute"

@@ -53,6 +53,10 @@ struct SettingsBackupPayload: Codable, Equatable {
     let autoUpdateCheckEnabled: Bool
     let betaReleasesEnabled: Bool
     let enableDebugLogs: Bool
+    let privacyLockEnabled: Bool?
+    let privacyLockProtectSensitiveWindows: Bool?
+    // swiftlint:disable:next discouraged_optional_collection
+    let privacyLockCustomBundleIDs: [String]?
     let pressAndHoldMode: Bool
     let hotkeyMode: HotkeyActivationMode?
     let enableStreamingPreview: Bool

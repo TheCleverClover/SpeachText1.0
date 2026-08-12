@@ -228,6 +228,11 @@ private final nonisolated class HotkeyState: @unchecked Sendable {
 
 @MainActor
 final class GlobalHotkeyManager: NSObject {
+    private static let recoveryUndoShortcut = HotkeyShortcut(
+        keyCode: 6,
+        modifierFlags: [.command, .option]
+    )
+
     private nonisolated(unsafe) var state = HotkeyState()
     private nonisolated(unsafe) var eventTap: CFMachPort?
     private nonisolated(unsafe) var runLoopSource: CFRunLoopSource?
@@ -254,6 +259,7 @@ final class GlobalHotkeyManager: NSObject {
     private var isShortcutCaptureActiveProvider: (() -> Bool)?
     private var cancelCallback: (() -> Bool)? // Returns true if handled
     private var pasteLastTranscriptionCallback: (() -> Void)?
+    private var recoveryUndoCallback: (() -> Void)?
     private var hotkeyMode: HotkeyActivationMode = SettingsStore.shared.hotkeyMode
     private let automaticTapThresholdSeconds: TimeInterval = 0.4
 
@@ -601,6 +607,10 @@ final class GlobalHotkeyManager: NSObject {
         self.pasteLastTranscriptionCallback = callback
     }
 
+    func setRecoveryUndoCallback(_ callback: @escaping () -> Void) {
+        self.recoveryUndoCallback = callback
+    }
+
     private func setupGlobalHotkeyWithRetry() {
         for attempt in 1...self.maxRetryAttempts {
             DebugLogger.shared.debug("Setup attempt \(attempt)/\(self.maxRetryAttempts)", source: "GlobalHotkeyManager")
@@ -822,6 +832,17 @@ final class GlobalHotkeyManager: NSObject {
                 if handled {
                     return nil // Consume event only if we did something
                 }
+            }
+
+            // Recovery Undo is a fixed one-shot chord: Command-Option-Z.
+            if SettingsStore.shared.recoveryVaultEnabled,
+               SettingsStore.shared.recoveryVaultInstantUndoEnabled,
+               Self.recoveryUndoShortcut.matches(keyCode: keyCode, modifiers: eventModifiers)
+            {
+                self.triggerRecoveryUndo(
+                    isAutorepeat: event.getIntegerValueField(.keyboardEventAutorepeat) != 0
+                )
+                return nil
             }
 
             // Check the "paste last transcription" shortcut (a one-shot action, like cancel).
@@ -1814,6 +1835,23 @@ final class GlobalHotkeyManager: NSObject {
         guard self.finishPrimaryShortcutPress(.mouse(mouseButton)) else { return false }
         self.handlePrimaryDictationTriggerUp()
         return true
+    }
+
+    private func triggerRecoveryUndo(isAutorepeat: Bool) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            guard !isAutorepeat else { return }
+            guard self.canTriggerRecordingAction("Recovery Undo hotkey") else { return }
+            guard !self.asrService.isRunning else {
+                DebugLogger.shared.info(
+                    "Recovery Undo ignored - recording in progress",
+                    source: "GlobalHotkeyManager"
+                )
+                return
+            }
+            DebugLogger.shared.info("Recovery Undo hotkey triggered", source: "GlobalHotkeyManager")
+            self.recoveryUndoCallback?()
+        }
     }
 
     private func triggerPasteLastTranscription(isAutorepeat: Bool) {

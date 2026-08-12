@@ -56,6 +56,7 @@ struct SettingsView: View {
     // which races with SwiftUI's AttributeGraph metadata processing and causes EXC_BAD_ACCESS crashes.
     @State private var cachedDefaultInputUID: String = ""
     @State private var cachedDefaultOutputName: String = ""
+    @State private var showRecoveryVaultSettings = false
     @State private var showVoiceMacroSettings = false
     @State private var showPrivacyLockSettings = false
 
@@ -959,6 +960,31 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
+                                        title: "Recovery Vault",
+                                        description: "Keep an encrypted, device-local recovery window for recent insertions and undo the latest with Command-Option-Z.",
+                                        isOn: Binding(
+                                            get: { SettingsStore.shared.recoveryVaultEnabled },
+                                            set: { SettingsStore.shared.recoveryVaultEnabled = $0 }
+                                        ),
+                                        allowsDescriptionWrapping: true
+                                    )
+
+                                    HStack {
+                                        Button("Open Recovery Vault…") {
+                                            self.showRecoveryVaultSettings = true
+                                        }
+                                        .buttonStyle(.link)
+
+                                        Spacer()
+
+                                        Label("AES-256-GCM encrypted", systemImage: "lock.fill")
+                                            .font(.caption)
+                                            .foregroundStyle(self.settingsSecondaryText)
+                                    }
+                                    .padding(.top, 6)
+                                    Divider().opacity(0.2)
+
+                                    self.optionToggleRow(
                                         title: "Voice Macros",
                                         description: "Run exact, deterministic actions from normal dictation without relying on an AI provider.",
                                         isOn: Binding(
@@ -1438,6 +1464,10 @@ struct SettingsView: View {
                 }
             }
             .padding(16)
+        }
+        .sheet(isPresented: self.$showRecoveryVaultSettings) {
+            RecoveryVaultSettingsView()
+                .appTheme(self.theme)
         }
         .sheet(isPresented: self.$showVoiceMacroSettings) {
             VoiceMacroSettingsView()

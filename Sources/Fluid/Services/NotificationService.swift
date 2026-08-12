@@ -9,6 +9,7 @@ enum NotificationService {
     enum Kind {
         static let aiProcessingFallback = "aiProcessingFallback"
         static let commandModeFailure = "commandModeFailure"
+        static let recoveryVault = "recoveryVault"
     }
 
     static func showAIProcessingFallback(error: String) {
@@ -67,6 +68,35 @@ enum NotificationService {
                 )
             @unknown default:
                 break
+            }
+        }
+    }
+
+    static func showRecoveryVaultStatus(title: String, body: String) {
+        let center = UNUserNotificationCenter.current()
+        center.getNotificationSettings { settings in
+            guard settings.authorizationStatus == .authorized ||
+                  settings.authorizationStatus == .provisional ||
+                  settings.authorizationStatus == .ephemeral
+            else { return }
+
+            let content = UNMutableNotificationContent()
+            content.title = title
+            content.body = body
+            content.sound = nil
+            content.userInfo = [UserInfoKey.kind: Kind.recoveryVault]
+            let request = UNNotificationRequest(
+                identifier: "recovery-vault-\(UUID().uuidString)",
+                content: content,
+                trigger: nil
+            )
+            center.add(request) { error in
+                if let error {
+                    DebugLogger.shared.warning(
+                        "Failed to show Recovery Vault notification: \(error.localizedDescription)",
+                        source: "NotificationService"
+                    )
+                }
             }
         }
     }

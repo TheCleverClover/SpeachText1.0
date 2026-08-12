@@ -281,6 +281,31 @@ final class TypingService {
 
     // MARK: - Public API
 
+    @discardableResult
+    func undoLastChange(preferredTargetPID: pid_t?) -> Bool {
+        let zKeyCode: CGKeyCode = 6
+        guard let keyDown = CGEvent(keyboardEventSource: nil, virtualKey: zKeyCode, keyDown: true),
+              let keyUp = CGEvent(keyboardEventSource: nil, virtualKey: zKeyCode, keyDown: false)
+        else {
+            self.log("[TypingService] ERROR: Failed to create Command-Z events")
+            return false
+        }
+
+        keyDown.flags = .maskCommand
+        keyUp.flags = .maskCommand
+        if let preferredTargetPID, preferredTargetPID > 0 {
+            keyDown.postToPid(preferredTargetPID)
+            usleep(8_000)
+            keyUp.postToPid(preferredTargetPID)
+        } else {
+            keyDown.post(tap: .cghidEventTap)
+            usleep(8_000)
+            keyUp.post(tap: .cghidEventTap)
+        }
+        self.log("[TypingService] Posted Command-Z to PID \(preferredTargetPID.map(String.init) ?? "frontmost")")
+        return true
+    }
+
     func typeTextInstantly(_ text: String) {
         self.typeTextInstantly(text, preferredTargetPID: nil, textReadyAt: nil)
     }

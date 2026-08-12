@@ -2403,6 +2403,15 @@ struct ContentView: View {
                 textReadyAt: finalTextReadyAt,
                 tracksDictionaryCorrections: true
             )
+            if !self.recordingPrivacyLockDecision.isLocked {
+                RecoveryVaultStore.shared.add(
+                    text: finalText,
+                    appName: appInfo.name,
+                    bundleID: appInfo.bundleId,
+                    targetPID: typingTarget.pid,
+                    source: .dictation
+                )
+            }
             didTypeExternally = true
             if !shouldShowAIProcessingFailure, !didRequestOverlayHideOnStop {
                 self.hideOverlayAfterOutput()
@@ -2643,6 +2652,35 @@ struct ContentView: View {
             )
             self.asr.typeOutputPlanToActiveField(outputPlan, preferredTargetPID: typingTarget.pid)
             DebugLogger.shared.info("Actions: Pasted latest transcription into focused field", source: "ContentView")
+        }
+    }
+
+    private func undoLatestRecoveryVaultRecord() {
+        Task { @MainActor in
+            guard await Self.waitForHotkeyModifiersReleased(timeout: 5) else {
+                DebugLogger.shared.info("Recovery Undo aborted - modifier keys still held", source: "ContentView")
+                return
+            }
+            guard let record = RecoveryVaultStore.shared.latestRecoverableRecord else {
+                NSSound.beep()
+                NotificationService.showRecoveryVaultStatus(
+                    title: "Recovery Vault is empty",
+                    body: "There is no recent SpeachText1.0 insertion to undo."
+                )
+                return
+            }
+            if await RecoveryVaultActions.undo(record) {
+                NotificationService.showRecoveryVaultStatus(
+                    title: "Last dictation undone",
+                    body: "You can restore it from Recovery Vault."
+                )
+            } else {
+                NSSound.beep()
+                NotificationService.showRecoveryVaultStatus(
+                    title: "Original app is unavailable",
+                    body: "Open \(record.appName) and use Restore from Recovery Vault instead."
+                )
+            }
         }
     }
 
@@ -2887,6 +2925,15 @@ struct ContentView: View {
                 outputPlan,
                 preferredTargetPID: typingTarget.pid
             )
+            if !privacyDecision.isLocked {
+                RecoveryVaultStore.shared.add(
+                    text: finalText,
+                    appName: appInfo.name,
+                    bundleID: appInfo.bundleId,
+                    targetPID: typingTarget.pid,
+                    source: .reprocess
+                )
+            }
         }
 
         if aiFallbackReason == nil {
@@ -2940,6 +2987,15 @@ struct ContentView: View {
                 self.rewriteModeService.rewrittenText,
                 preferredTargetPID: typingTarget.pid
             )
+            if !privacyDecision.isLocked {
+                RecoveryVaultStore.shared.add(
+                    text: self.rewriteModeService.rewrittenText,
+                    appName: appInfo.name,
+                    bundleID: appInfo.bundleId,
+                    targetPID: typingTarget.pid,
+                    source: .rewrite
+                )
+            }
 
             // Clear the rewrite service state for next use
             self.rewriteModeService.clearState()
@@ -3060,6 +3116,16 @@ struct ContentView: View {
                 await self.restoreFocusToRecordingTarget()
             }
             self.asr.typeTextToActiveField(text, preferredTargetPID: typingTarget.pid)
+            if !self.recordingPrivacyLockDecision.isLocked {
+                let appInfo = self.recordingAppInfo ?? self.getCurrentAppInfo()
+                RecoveryVaultStore.shared.add(
+                    text: text,
+                    appName: appInfo.name,
+                    bundleID: appInfo.bundleId,
+                    targetPID: typingTarget.pid,
+                    source: .voiceMacro
+                )
+            }
             NotchOverlayManager.shared.updateTranscriptionText("Macro complete")
             self.hideOverlayAfterOutput()
 
@@ -3536,6 +3602,10 @@ struct ContentView: View {
         // Re-insert the most recent transcription on demand (no clipboard involved).
         self.hotkeyManager?.setPasteLastTranscriptionCallback {
             self.pasteLastDictationFromHistory()
+        }
+
+        self.hotkeyManager?.setRecoveryUndoCallback {
+            self.undoLatestRecoveryVaultRecord()
         }
 
         // Monitor initialization status

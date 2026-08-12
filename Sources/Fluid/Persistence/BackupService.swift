@@ -53,6 +53,9 @@ struct SettingsBackupPayload: Codable, Equatable {
     let autoUpdateCheckEnabled: Bool
     let betaReleasesEnabled: Bool
     let enableDebugLogs: Bool
+    let recoveryVaultEnabled: Bool?
+    let recoveryVaultInstantUndoEnabled: Bool?
+    let recoveryVaultRetentionDays: Int?
     let voiceMacrosEnabled: Bool?
     let voiceMacrosRequirePrefix: Bool?
     // swiftlint:disable:next discouraged_optional_collection

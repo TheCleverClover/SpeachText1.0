@@ -2654,6 +2654,41 @@ final class SettingsStore: ObservableObject {
         return false
     }
 
+    // MARK: - Recovery Vault Settings
+
+    var recoveryVaultEnabled: Bool {
+        get {
+            let value = self.defaults.object(forKey: Keys.recoveryVaultEnabled)
+            return value as? Bool ?? true
+        }
+        set {
+            objectWillChange.send()
+            self.defaults.set(newValue, forKey: Keys.recoveryVaultEnabled)
+        }
+    }
+
+    var recoveryVaultInstantUndoEnabled: Bool {
+        get {
+            let value = self.defaults.object(forKey: Keys.recoveryVaultInstantUndoEnabled)
+            return value as? Bool ?? true
+        }
+        set {
+            objectWillChange.send()
+            self.defaults.set(newValue, forKey: Keys.recoveryVaultInstantUndoEnabled)
+        }
+    }
+
+    var recoveryVaultRetentionDays: Int {
+        get {
+            let value = self.defaults.object(forKey: Keys.recoveryVaultRetentionDays) as? Int ?? 7
+            return min(max(value, 1), 30)
+        }
+        set {
+            objectWillChange.send()
+            self.defaults.set(min(max(newValue, 1), 30), forKey: Keys.recoveryVaultRetentionDays)
+        }
+    }
+
     // MARK: - Voice Macro Settings
 
     var voiceMacrosEnabled: Bool {
@@ -3250,6 +3285,9 @@ final class SettingsStore: ObservableObject {
             autoUpdateCheckEnabled: self.autoUpdateCheckEnabled,
             betaReleasesEnabled: self.betaReleasesEnabled,
             enableDebugLogs: self.enableDebugLogs,
+            recoveryVaultEnabled: self.recoveryVaultEnabled,
+            recoveryVaultInstantUndoEnabled: self.recoveryVaultInstantUndoEnabled,
+            recoveryVaultRetentionDays: self.recoveryVaultRetentionDays,
             voiceMacrosEnabled: self.voiceMacrosEnabled,
             voiceMacrosRequirePrefix: self.voiceMacrosRequirePrefix,
             voiceMacros: self.voiceMacros,
@@ -3377,6 +3415,15 @@ final class SettingsStore: ObservableObject {
         self.autoUpdateCheckEnabled = payload.autoUpdateCheckEnabled
         self.betaReleasesEnabled = payload.betaReleasesEnabled
         self.enableDebugLogs = payload.enableDebugLogs
+        if let recoveryVaultEnabled = payload.recoveryVaultEnabled {
+            self.recoveryVaultEnabled = recoveryVaultEnabled
+        }
+        if let recoveryVaultInstantUndoEnabled = payload.recoveryVaultInstantUndoEnabled {
+            self.recoveryVaultInstantUndoEnabled = recoveryVaultInstantUndoEnabled
+        }
+        if let recoveryVaultRetentionDays = payload.recoveryVaultRetentionDays {
+            self.recoveryVaultRetentionDays = recoveryVaultRetentionDays
+        }
         if let voiceMacrosEnabled = payload.voiceMacrosEnabled {
             self.voiceMacrosEnabled = voiceMacrosEnabled
         }
@@ -5196,6 +5243,9 @@ private extension SettingsStore {
 
         // Command Mode Keys
         static let commandModeSelectedModel = "CommandModeSelectedModel"
+        static let recoveryVaultEnabled = "RecoveryVaultEnabled"
+        static let recoveryVaultInstantUndoEnabled = "RecoveryVaultInstantUndoEnabled"
+        static let recoveryVaultRetentionDays = "RecoveryVaultRetentionDays"
         static let voiceMacrosEnabled = "VoiceMacrosEnabled"
         static let voiceMacrosRequirePrefix = "VoiceMacrosRequirePrefix"
         static let voiceMacros = "VoiceMacros"

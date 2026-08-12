@@ -6,7 +6,7 @@ enum PrivateAIMLXUpgradeCoordinator {
     private static let offerPreparedKey = "FluidIntelligenceMLXUpgrade163OfferPrepared"
     private static let upgradePendingKey = "FluidIntelligenceMLXUpgrade163Pending"
     private static let previousVerificationKey = "FluidIntelligenceMLXUpgrade163PreviousVerification"
-    private static let legacyLlamaFilenames = ["fluid-1-q4_k_m.gguf", "Fluid-1-Q4_K_M.gguf"]
+    private static let legacyLlamaFilenames = ["fluid-1-q4_k_m.gguf", "Speach Intelligence-Q4_K_M.gguf"]
 
     static func prepareOfferIfNeeded(
         settings: SettingsStore = .shared,
@@ -358,7 +358,7 @@ actor PrivateAIIntegrationService {
         } catch {
             await MainActor.run {
                 DebugLogger.shared.warning(
-                    "Could not remove inactive Fluid Intelligence backend: \(Self.errorMessage(for: error))",
+                    "Could not remove inactive Speach Intelligence backend: \(Self.errorMessage(for: error))",
                     source: "PrivateAIProvider"
                 )
             }

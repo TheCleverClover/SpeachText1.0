@@ -1,5 +1,5 @@
 import AppKit
-@testable import SpeachText1.0_Debug
+@testable import SpeachText
 import XCTest
 
 // The temporary clipboard write used to drive synthetic Cmd+V must be tagged so clipboard

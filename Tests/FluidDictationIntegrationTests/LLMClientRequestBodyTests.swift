@@ -1,4 +1,4 @@
-@testable import SpeachText1.0_Debug
+@testable import SpeachText
 import Foundation
 import XCTest
 

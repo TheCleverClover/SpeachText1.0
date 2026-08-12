@@ -761,7 +761,7 @@ extension AIEnhancementSettingsView {
                 .controlSize(.mini)
                 .labelsHidden()
                 .disabled(isBusy)
-                .help("Keeps Fluid-1 ready so your first dictation finishes sooner.")
+                .help("Keeps Speach Intelligence ready so your first enhanced dictation finishes sooner.")
                 .accessibilityLabel("Faster first result")
 
             Spacer(minLength: 0)
@@ -795,11 +795,11 @@ extension AIEnhancementSettingsView {
         .pickerStyle(.menu)
         .labelsHidden()
         .disabled(isBusy)
-        .help("Local Fluid-1 runtime. Default is MLX on Apple Silicon.")
+        .help("Speach Intelligence runs locally through MLX on Apple Silicon.")
     }
 
     private var privateAISelectableBackendPreferences: [SettingsStore.PrivateAIBackendPreference] {
-        CPUArchitecture.isIntel ? [.llama] : [.mlx, .llama]
+        [.mlx]
     }
 
     private var privateAIBackendShortName: String {
@@ -824,7 +824,7 @@ extension AIEnhancementSettingsView {
                 .controlSize(.mini)
                 .labelsHidden()
                 .disabled(isBusy)
-                .help("Uses extra local acceleration so Fluid-1 finishes faster.")
+                .help("Legacy acceleration control retained only for imported settings.")
                 .accessibilityLabel("Faster results")
 
             Text("Finishes dictation up to 15% faster. Uses about 100 MB more memory.")
@@ -911,7 +911,7 @@ extension AIEnhancementSettingsView {
                 self.privateAILoadState = .idle
                 Task { @MainActor in
                     await PrivateAIIntegrationService.shared.unloadCachedRuntime(
-                        reason: enabled ? "Fluid-1 Boost enabled" : "Fluid-1 Boost disabled"
+                        reason: enabled ? "local boost enabled" : "local boost disabled"
                     )
                     self.viewModel.refreshProviderItems()
                 }
@@ -929,14 +929,7 @@ extension AIEnhancementSettingsView {
     }
 
     private var privateAIShowsBoostRow: Bool {
-        switch self.settings.privateAIBackendPreference {
-        case .llama:
-            return true
-        case .auto:
-            return CPUArchitecture.isIntel
-        case .mlx:
-            return false
-        }
+        false
     }
 
     private var privateAIContextTokenLimitBinding: Binding<Int> {
@@ -949,7 +942,7 @@ extension AIEnhancementSettingsView {
                 self.privateAILoadState = .idle
                 Task { @MainActor in
                     await PrivateAIIntegrationService.shared.unloadCachedRuntime(
-                        reason: "Fluid Intelligence context changed"
+                        reason: "Speach Intelligence context changed"
                     )
                     self.viewModel.refreshProviderItems()
                 }
@@ -1152,13 +1145,15 @@ extension AIEnhancementSettingsView {
     }
 
     private func revealPrivateAIModelFolder() {
-        let directoryURL = PrivateAIIntegrationService.modelDirectoryURL
+        let directoryURL = PrivateAIIntegrationService.configuredLocalModelPath.map {
+            URL(fileURLWithPath: $0, isDirectory: true)
+        } ?? PrivateAIIntegrationService.modelDirectoryURL
         do {
             try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
             NSWorkspace.shared.open(directoryURL)
         } catch {
             DebugLogger.shared.error(
-                "Failed to open Private AI Provider models folder: \(error.localizedDescription)",
+                "Failed to open Speach Intelligence model folder: \(error.localizedDescription)",
                 source: "AISettingsView"
             )
         }
@@ -1214,7 +1209,7 @@ extension AIEnhancementSettingsView {
         self.viewModel.resetVerification(for: PrivateAIProviderFeature.shared.providerID)
         self.privateAILoadState = .idle
         Task { @MainActor in
-            await PrivateAIIntegrationService.shared.unloadCachedRuntime(reason: "Fluid Intelligence verification reset")
+            await PrivateAIIntegrationService.shared.unloadCachedRuntime(reason: "Speach Intelligence verification reset")
             if PrivateAIIntegrationService.isModelInstalled(model) {
                 self.privateAILoadState = .idle
             }
@@ -1303,7 +1298,7 @@ extension AIEnhancementSettingsView {
 
         Task { @MainActor in
             await PrivateAIIntegrationService.shared.unloadCachedRuntime(
-                reason: "Fluid Intelligence backend changed to \(preference.displayName)"
+                reason: "Speach Intelligence backend changed to \(preference.displayName)"
             )
             guard self.privateAISelectedModelID == modelID else { return }
             let model = self.selectedPrivateAIModel
@@ -2174,7 +2169,7 @@ extension AIEnhancementSettingsView {
                 .stroke(self.theme.palette.cardBorder.opacity(0.35), lineWidth: 0.8)
         )
         .fixedSize()
-        .help("How much raw dictation Fluid-1 can clean at once. Higher values help long transcripts but use more RAM and can slow first response.")
+        .help("How much raw dictation Speach Intelligence can clean at once. Higher values help long transcripts but use more RAM and can slow the first response.")
     }
 
     private func decreasePrivateAIContextTokenLimit() {

@@ -2405,7 +2405,7 @@ struct ContentView: View {
         let expectedOverlayLifecycleID = self.overlayLifecycleID
         self.menuBarManager.showRecordingOverlayImmediately()
         NotchContentState.shared.showAIProcessingFailure(
-            message: "Edit Mode cannot be used with Fluid-1",
+            message: "Edit Mode cannot be used with Speach Intelligence",
             canRetry: false
         )
         self.menuBarManager.finishProcessingKeepingOverlayVisible()

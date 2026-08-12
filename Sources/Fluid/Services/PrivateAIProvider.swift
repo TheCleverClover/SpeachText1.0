@@ -134,7 +134,8 @@ struct PrivateAIRegisteredModel: Sendable, Codable, Hashable, Identifiable {
     var artifact: PrivateAIModelArtifact
 
     var canDownload: Bool {
-        self.artifact.downloadURL != nil && self.artifact.sha256?.isEmpty == false
+        guard self.artifact.downloadURL != nil else { return false }
+        return self.artifact.sha256?.isEmpty == false || self.artifact.version?.isEmpty == false
     }
 }
 
@@ -270,9 +271,7 @@ enum PrivateAIProviderRegistry {
 
 private enum PrivateAIProviderBootstrap {
     static let installOnce: Void = {
-        #if PRIVATE_AI_PROVIDER
         PrivateAIProviderBridge.install()
-        #endif
     }()
 
     static func installIfAvailable() {

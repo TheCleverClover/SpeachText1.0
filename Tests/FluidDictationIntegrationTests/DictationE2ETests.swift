@@ -1,4 +1,4 @@
-@testable import SpeachText1.0_Debug
+@testable import SpeachText
 import Foundation
 import XCTest
 
@@ -2343,12 +2343,12 @@ final class OverlayFailureStateTests: XCTestCase {
         }
 
         state.showAIProcessingFailure(
-            message: "Edit Mode cannot be used with Fluid-1",
+            message: "Edit Mode cannot be used with Speach Intelligence",
             canRetry: false
         )
 
         XCTAssertTrue(state.isAIProcessingFailureVisible)
-        XCTAssertEqual(state.aiProcessingFailureMessage, "Edit Mode cannot be used with Fluid-1")
+        XCTAssertEqual(state.aiProcessingFailureMessage, "Edit Mode cannot be used with Speach Intelligence")
         XCTAssertFalse(state.canRetryAIProcessingFailure)
 
         state.showAIProcessingFailure()

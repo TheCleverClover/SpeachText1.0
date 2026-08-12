@@ -7,6 +7,8 @@
 #   ./build.sh                    # signed development build
 #   ./build.sh public             # signed development build
 #   ./build.sh unsigned           # unsigned build (CI/fallback)
+#   ./build.sh package            # arm64 release ZIP + DMG (ad-hoc signed)
+#   ./build.sh verify             # verify installers already in ./dist
 
 set -euo pipefail
 
@@ -91,10 +93,16 @@ case "${PROFILE}" in
     unsigned|ci)
         run_public_build unsigned
         ;;
-    
+    package|release)
+        exec "${PROJECT_DIR}/scripts/package_release.sh"
+        ;;
+    verify)
+        exec "${PROJECT_DIR}/scripts/verify_release.sh" "${PROJECT_DIR}/dist"
+        ;;
+
     *)
         echo "Unknown build profile: ${PROFILE}"
-		echo "Valid profiles: public/oss/incremental/fast, unsigned/ci"
+        echo "Valid profiles: public/oss/incremental/fast, unsigned/ci, package/release, verify"
         exit 1
         ;;
 esac

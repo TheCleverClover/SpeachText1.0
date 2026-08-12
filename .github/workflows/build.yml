@@ -1,104 +1,105 @@
-name: Build and Test
+name: Build, Test, and Package
 
 on:
+  workflow_dispatch:
   pull_request:
-    branches: [ main ]
-    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main, master]
   push:
-    branches: [ main ]
+    branches: [main, master]
+    tags: ['v*']
+
+permissions:
+  contents: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  changes:
-    name: Detect build changes
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      relevant: ${{ steps.filter.outputs.relevant }}
+  macos:
+    name: Apple Silicon macOS build
+    runs-on: macos-15
+    timeout-minutes: 60
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 2
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-    - name: Detect build-related changes
-      id: filter
-      uses: dorny/paths-filter@v3
-      with:
-        filters: |
-          relevant:
-            - 'Sources/**'
-            - 'Tests/**'
-            - 'SpeachText1.0.xcodeproj/**'
-            - 'Package.swift'
-            - 'Package.resolved'
-            - 'Info.plist'
-            - 'Fluid.entitlements'
-            - '.swiftlint.yml'
-            - '.github/workflows/build.yml'
+      - name: Select Xcode 16.4
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
 
-  lint:
-    name: SwiftLint
-    if: needs.changes.outputs.relevant == 'true' && (github.event_name == 'push' || github.event.pull_request.draft == false)
-    needs: changes
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+      - name: Show environment
+        run: |
+          sw_vers
+          uname -m
+          xcodebuild -version
+          swift --version
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: .build/SourcePackages
+          key: ${{ runner.os }}-${{ runner.arch }}-spm-${{ hashFiles('Package.resolved', 'SpeachText1.0.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-spm-
 
-    - name: Run SwiftLint (strict)
-      run: |
-        docker run --rm \
-          --volume "$PWD:$PWD" \
-          --workdir "$PWD" \
-          ghcr.io/realm/swiftlint:0.63.2 \
-          lint --strict --config .swiftlint.yml
+      - name: Resolve Swift packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project SpeachText1.0.xcodeproj \
+            -scheme SpeachText1.0 \
+            -clonedSourcePackagesDirPath .build/SourcePackages
 
-  build:
-    name: Build SpeachText1.0
-    if: needs.changes.outputs.relevant == 'true' && needs.lint.result == 'success'
-    needs: [changes, lint]
-    runs-on: macos-latest
-    timeout-minutes: 20
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Build and run tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project SpeachText1.0.xcodeproj \
+            -scheme SpeachText1.0 \
+            -configuration Debug \
+            -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath DerivedData \
+            -clonedSourcePackagesDirPath .build/SourcePackages \
+            -skip-testing:SpeachTextTests/DictationE2ETests/testDictationEndToEnd_whisperTiny_transcribesFixture \
+            CODE_SIGN_IDENTITY='' \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcbeautify
 
-    - name: Install xcpretty
-      run: sudo gem install xcpretty
+      - name: Build release installers
+        env:
+          SPEACHTEXT_SOURCE_PACKAGES: ${{ github.workspace }}/.build/SourcePackages
+        run: ./scripts/package_release.sh
 
-    - name: Cache Whisper models
-      uses: actions/cache@v4
-      with:
-        path: ~/Library/Caches/WhisperModels
-        key: ${{ runner.os }}-whisper-models-transcribecpp-v1
+      - name: Verify release installers
+        run: ./scripts/verify_release.sh dist
 
-    - name: Setup Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: latest-stable
-    
-    - name: Show Xcode version
-      run: xcodebuild -version
-      
-    # Tiny Whisper GGUF output is nondeterministic on hosted macOS runners.
-    # Keep this E2E assertion in the suite for local validation, but skip it in CI.
-    - name: Build and test (excluding flaky Tiny Whisper E2E)
-      run: |
-        set -o pipefail
-        xcodebuild test \
-          -project SpeachText1.0.xcodeproj \
-          -scheme Fluid \
-          -destination 'platform=macOS,arch=arm64' \
-          -skip-testing:FluidDictationIntegrationTests/DictationE2ETests/testDictationEndToEnd_whisperTiny_transcribesFixture \
-          CODE_SIGN_IDENTITY="" \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGNING_ALLOWED=NO \
-          | xcpretty
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: SpeachText1.0-macOS-arm64
+          path: |
+            dist/SpeachText1.0-*.dmg
+            dist/SpeachText1.0-*.zip
+            dist/SHA256SUMS.txt
+            dist/release-manifest.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub release assets
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            gh release create "$tag" \
+              --title "SpeachText1.0 ${tag#v}" \
+              --generate-notes
+          fi
+          gh release upload "$tag" \
+            dist/SpeachText1.0-*.dmg \
+            dist/SpeachText1.0-*.zip \
+            dist/SHA256SUMS.txt \
+            dist/release-manifest.json \
+            --clobber

@@ -2737,7 +2737,7 @@ final class SettingsStore: ObservableObject {
     var commandModeShortcutEnabled: Bool {
         get {
             let value = self.defaults.object(forKey: Keys.commandModeShortcutEnabled)
-            return value as? Bool ?? false
+            return value as? Bool ?? true
         }
         set {
             objectWillChange.send()
@@ -2752,7 +2752,8 @@ final class SettingsStore: ObservableObject {
             {
                 return shortcut
             }
-            return nil
+            // Right Command provides a dedicated press-and-hold Command Mode trigger.
+            return HotkeyShortcut(keyCode: 54, modifierFlags: [])
         }
         set {
             objectWillChange.send()

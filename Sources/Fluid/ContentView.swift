@@ -2150,14 +2150,6 @@ struct ContentView: View {
             DebugLogger.shared.info("Processing rewrite with instruction: \(transcribedText)", source: "ContentView")
             let appInfo = self.recordingAppInfo ?? self.getCurrentAppInfo()
             await self.processRewriteWithVoiceInstruction(transcribedText, appInfo: appInfo)
-            AnalyticsService.shared.capture(
-                .transcriptionCompleted,
-                properties: [
-                    "mode": AnalyticsMode.rewrite.rawValue,
-                    "words_bucket": AnalyticsBuckets.bucketWords(AnalyticsBuckets.wordCount(in: transcribedText)),
-                    "ai_used": true,
-                ]
-            )
             return
         }
 
@@ -2165,14 +2157,6 @@ struct ContentView: View {
         if wasCommandMode {
             DebugLogger.shared.info("Processing command: \(transcribedText)", source: "ContentView")
             await self.processCommandWithVoice(transcribedText)
-            AnalyticsService.shared.capture(
-                .transcriptionCompleted,
-                properties: [
-                    "mode": AnalyticsMode.command.rawValue,
-                    "words_bucket": AnalyticsBuckets.bucketWords(AnalyticsBuckets.wordCount(in: transcribedText)),
-                    "ai_used": true,
-                ]
-            )
             return
         }
 
@@ -2255,17 +2239,6 @@ struct ContentView: View {
                     + "inputChars=\(postProcessingInputChars) fallback=\(aiFallbackReason != nil)",
                 source: "ContentView"
             )
-            AnalyticsService.shared.capture(
-                .dictationPostProcessingCompleted,
-                properties: [
-                    "latency_ms": postProcessingLatencyMs,
-                    "input_chars": postProcessingInputChars,
-                    "post_processing_provider": postProcessingModelInfo.provider ?? "unknown",
-                    "post_processing_model": postProcessingModelInfo.model ?? "unknown",
-                    "transcription_provider": transcriptionModelInfo.provider,
-                    "transcription_model": transcriptionModelInfo.model,
-                ]
-            )
 
             // Clear transient status text before leaving processing state to avoid
             // a brief non-shimmer "Refining..." preview flash.
@@ -2316,17 +2289,6 @@ struct ContentView: View {
         self.appBench("transcription_finalized chars=\(finalText.count)")
         self.appBench("text_ready chars=\(finalText.count)")
 
-        AnalyticsService.shared.capture(
-            .transcriptionCompleted,
-            properties: [
-                "mode": AnalyticsMode.dictation.rawValue,
-                "words_bucket": AnalyticsBuckets.bucketWords(AnalyticsBuckets.wordCount(in: finalText)),
-                "ai_used": shouldUseAI,
-                "ai_changed_text": transcribedText != finalText,
-                "transcription_provider": transcriptionModelInfo.provider,
-                "transcription_model": transcriptionModelInfo.model,
-            ]
-        )
 
         let shouldPersistOutputs = route == .normal
         if !shouldPersistOutputs {
@@ -2379,13 +2341,6 @@ struct ContentView: View {
 
         if shouldCopyToClipboard {
             ClipboardService.copyToClipboard(finalText)
-            AnalyticsService.shared.capture(
-                .outputDelivered,
-                properties: [
-                    "mode": AnalyticsMode.dictation.rawValue,
-                    "method": AnalyticsOutputMethod.clipboard.rawValue,
-                ]
-            )
         }
 
         var didTypeExternally = false
@@ -2416,42 +2371,6 @@ struct ContentView: View {
             if !shouldShowAIProcessingFailure, !didRequestOverlayHideOnStop {
                 self.hideOverlayAfterOutput()
             }
-        }
-
-        if didTypeExternally {
-            AnalyticsService.shared.capture(
-                .outputDelivered,
-                properties: [
-                    "mode": AnalyticsMode.dictation.rawValue,
-                    "method": AnalyticsOutputMethod.typed.rawValue,
-                ]
-            )
-
-            // Register the post-transcription edit observation after insertion is dispatched.
-            let wordsBucket = AnalyticsBuckets.bucketWords(AnalyticsBuckets.wordCount(in: finalText))
-            let modelInfo = self.currentDictationAIModelInfo(
-                dictationSlot: activeDictationSlot,
-                appBundleID: appInfo.bundleId
-            )
-            await PostTranscriptionEditTracker.shared.markTranscriptionCompleted(
-                mode: AnalyticsMode.dictation.rawValue,
-                outputMethod: AnalyticsOutputMethod.typed.rawValue,
-                wordsBucket: wordsBucket,
-                aiUsed: shouldUseAI,
-                aiModel: modelInfo.model,
-                aiProvider: modelInfo.provider
-            )
-        } else if shouldPersistOutputs,
-                  SettingsStore.shared.copyTranscriptionToClipboard == false,
-                  SettingsStore.shared.saveTranscriptionHistory
-        {
-            AnalyticsService.shared.capture(
-                .outputDelivered,
-                properties: [
-                    "mode": AnalyticsMode.dictation.rawValue,
-                    "method": AnalyticsOutputMethod.historyOnly.rawValue,
-                ]
-            )
         }
 
         if !didTypeExternally, !shouldShowAIProcessingFailure, !didRequestOverlayHideOnStop {
@@ -2950,13 +2869,6 @@ struct ContentView: View {
             // Copy to clipboard as backup
             if SettingsStore.shared.copyTranscriptionToClipboard {
                 ClipboardService.copyToClipboard(self.rewriteModeService.rewrittenText)
-                AnalyticsService.shared.capture(
-                    .outputDelivered,
-                    properties: [
-                        "mode": AnalyticsMode.rewrite.rawValue,
-                        "method": AnalyticsOutputMethod.clipboard.rawValue,
-                    ]
-                )
             }
 
             // Type the rewritten text
@@ -2968,13 +2880,6 @@ struct ContentView: View {
                 self.rewriteModeService.rewrittenText,
                 preferredTargetPID: typingTarget.pid
             )
-            AnalyticsService.shared.capture(
-                .outputDelivered,
-                properties: [
-                    "mode": AnalyticsMode.rewrite.rawValue,
-                    "method": AnalyticsOutputMethod.typed.rawValue,
-                ]
-            )
 
             // Clear the rewrite service state for next use
             self.rewriteModeService.clearState()
@@ -2982,13 +2887,6 @@ struct ContentView: View {
         } else {
             await self.menuBarManager.finishProcessingAndHideOverlay()
             DebugLogger.shared.error("Rewrite failed - no result", source: "ContentView")
-            AnalyticsService.shared.capture(
-                .errorOccurred,
-                properties: [
-                    "domain": AnalyticsErrorDomain.llm.rawValue,
-                    "category": "rewrite_no_result",
-                ]
-            )
         }
     }
 

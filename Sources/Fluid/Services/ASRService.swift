@@ -538,10 +538,6 @@ final class ASRService: ObservableObject {
             properties["error_category"] = self.streamingChunkErrorCategory(for: error)
         }
 
-        AnalyticsService.shared.capture(
-            .transcriptionChunkProcessed,
-            properties: properties
-        )
     }
 
     /// Gets a provider for a specific model (without changing the active selection)

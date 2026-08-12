@@ -538,15 +538,6 @@ final class CommandModeService: ObservableObject {
         default: toolCallsBucket = "6+"
         }
 
-        AnalyticsService.shared.capture(
-            .commandModeRunCompleted,
-            properties: [
-                "success": success,
-                "turns_bucket": turnsBucket,
-                "tool_calls_bucket": toolCallsBucket,
-                "confirmation_needed": self.didRequireConfirmationThisRun,
-            ]
-        )
     }
 
     /// Show expanded notch output if there's content to display

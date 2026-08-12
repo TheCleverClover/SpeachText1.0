@@ -40,20 +40,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         let shouldOfferMLXUpgrade = PrivateAIMLXUpgradeCoordinator.prepareOfferIfNeeded()
         LocalAPIServer.shared.start()
 
-        // Record first-open synchronously before async analytics bootstrap so
-        // onboarding initialization is deterministic on brand-new installs.
-        let isTrueFirstOpen = AnalyticsIdentityStore.shared.ensureFirstOpenRecorded()
+        // Keep onboarding deterministic without generating an install identifier or telemetry.
+        let isTrueFirstOpen = InstallStateStore.shared.ensureFirstOpenRecorded()
         SettingsStore.shared.bootstrapOnboardingState(isTrueFirstOpen: isTrueFirstOpen)
-
-        AnalyticsService.shared.bootstrap()
-
-        if isTrueFirstOpen {
-            AnalyticsService.shared.capture(.appFirstOpen)
-        }
-        AnalyticsService.shared.capture(
-            .appOpen,
-            properties: ["accessibility_trusted": AXIsProcessTrusted()]
-        )
 
         // Check for updates automatically if enabled (initial check on launch)
         self.checkForUpdatesAutomatically()

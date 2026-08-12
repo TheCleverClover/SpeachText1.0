@@ -57,11 +57,6 @@ struct SettingsView: View {
     @State private var cachedDefaultInputUID: String = ""
     @State private var cachedDefaultOutputName: String = ""
 
-    // Analytics consent UI state (default ON; user can opt-out)
-    @State private var shareAnonymousAnalytics: Bool = SettingsStore.shared.shareAnonymousAnalytics
-    @State private var showAnalyticsPrivacy: Bool = false
-    @State private var pendingAnalyticsValue: Bool? = nil
-    @State private var showAreYouSureToStopAnalytics: Bool = false
     @State private var rollbackVersion: String = ""
     @State private var isRollingBack: Bool = false
     @State private var audioHistoryBudgetText: String = Self.audioBudgetText(for: SettingsStore.shared.audioHistoryBudgetGB)
@@ -97,45 +92,6 @@ struct SettingsView: View {
 
     private func isRecording(_ target: ShortcutRecordingTarget) -> Bool {
         self.activeShortcutRecordingTarget == target
-    }
-
-    private var analyticsToggleBinding: Binding<Bool> {
-        Binding(
-            get: {
-                self.pendingAnalyticsValue ?? self.shareAnonymousAnalytics
-            },
-            set: { newValue in
-                // User is trying to turn OFF → ask first
-                if self.shareAnonymousAnalytics == true, newValue == false {
-                    self.pendingAnalyticsValue = false
-                    self.showAreYouSureToStopAnalytics = true
-
-                    return
-                }
-
-                // Normal ON path
-                self.shareAnonymousAnalytics = newValue
-                self.applyAnalyticsConsentChange(newValue)
-            }
-        )
-    }
-
-    private var analyticsConfirmationBinding: Binding<Bool> {
-        Binding(
-            get: { self.showAreYouSureToStopAnalytics },
-            set: { newValue in
-                // Only open modal if we have a pending value
-                if newValue {
-                    if self.pendingAnalyticsValue != nil {
-                        self.showAreYouSureToStopAnalytics = true
-                    }
-                } else {
-                    // Closing the modal: reset pending state
-                    self.showAreYouSureToStopAnalytics = false
-                    self.pendingAnalyticsValue = nil
-                }
-            }
-        )
     }
 
     private var currentAppVersion: String {
@@ -998,23 +954,6 @@ struct SettingsView: View {
                                             set: { SettingsStore.shared.pauseMediaDuringTranscription = $0 }
                                         )
                                     )
-                                    Divider().opacity(0.2)
-
-                                    self.optionToggleRow(
-                                        title: "Share Anonymous Analytics",
-                                        description: "Send anonymous usage and performance metrics to help improve SpeachText1.0. Never includes transcription text or prompts.",
-                                        isOn: self.analyticsToggleBinding
-                                    )
-
-                                    HStack {
-                                        Button("What we collect") {
-                                            self.showAnalyticsPrivacy = true
-                                        }
-                                        .buttonStyle(.link)
-
-                                        Spacer()
-                                    }
-                                    .padding(.top, 6)
                                 }
                                 .padding(12)
                             }
@@ -1448,27 +1387,6 @@ struct SettingsView: View {
             }
             .padding(16)
         }
-        .sheet(isPresented: self.$showAnalyticsPrivacy) {
-            AnalyticsPrivacyView()
-                .frame(minWidth: 520, minHeight: 520)
-                .appTheme(self.theme)
-        }
-        .sheet(isPresented: self.analyticsConfirmationBinding) {
-            AnalyticsConfirmationView(
-                onConfirm: {
-                    if let pending = pendingAnalyticsValue {
-                        self.shareAnonymousAnalytics = pending
-                        self.applyAnalyticsConsentChange(pending)
-                    }
-                    self.pendingAnalyticsValue = nil
-                    self.showAreYouSureToStopAnalytics = false
-                },
-                onCancel: {
-                    self.pendingAnalyticsValue = nil
-                    self.showAreYouSureToStopAnalytics = false
-                }
-            )
-        }
         .onAppear {
             Task { @MainActor in
                 // Ensure the shared audio startup gate is scheduled. Safe to call repeatedly.
@@ -1613,9 +1531,6 @@ struct SettingsView: View {
     }
 
     private func syncLocalSettingsAfterBackupRestore() {
-        self.shareAnonymousAnalytics = SettingsStore.shared.shareAnonymousAnalytics
-        self.pendingAnalyticsValue = nil
-        self.showAreYouSureToStopAnalytics = false
         self.refreshAudioHistoryUsage()
     }
 
@@ -1764,12 +1679,6 @@ struct SettingsView: View {
     private func openAllReleasesPage() {
         guard let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/releases") else { return }
         NSWorkspace.shared.open(url)
-    }
-
-    private func applyAnalyticsConsentChange(_ enabled: Bool) {
-        SettingsStore.shared.shareAnonymousAnalytics = enabled
-        AnalyticsService.shared.setEnabled(enabled)
-        AnalyticsService.shared.capture(.analyticsConsentChanged, properties: ["enabled": enabled])
     }
 
     // MARK: - Helper Views
@@ -2808,74 +2717,5 @@ struct FlowLayout: Layout {
 
         cache.containerSize = CGSize(width: maxWidth, height: y + rowHeight)
         cache.lastWidth = maxWidth
-    }
-}
-
-// MARK: - Analytics modal confirmation
-
-struct AnalyticsConfirmationView: View {
-    let onConfirm: () -> Void
-    let onCancel: () -> Void
-    @Environment(\.theme) private var theme
-
-    private var contactInfoText: AttributedString {
-        var text = AttributedString(
-            "If you have any concerns we would love to hear about it, please email alticdev@gmail.com or file an issue in our GitHub."
-        )
-
-        if let emailRange = text.range(of: "alticdev@gmail.com") {
-            text[emailRange].link = URL(string: "mailto:alticdev@gmail.com")
-            text[emailRange].foregroundColor = self.theme.palette.accent
-        }
-
-        if let githubRange = text.range(of: "GitHub") {
-            text[githubRange].link = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0")
-            text[githubRange].foregroundColor = self.theme.palette.accent
-        }
-
-        return text
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Are you sure you want to stop sharing anonymous analytics?")
-                .font(.headline)
-
-            Text("By sharing anonymous usage data, you help us build the features you care about most. We never collect personal information (Audio, Transcription text etc), ever. Your support simply helps us make SpeachText1.0 better for you.")
-                .font(self.theme.typography.bodySmall)
-                .foregroundStyle(.secondary)
-                .padding(12)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(self.theme.palette.cardBackground)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(self.theme.palette.cardBorder.opacity(0.6), lineWidth: 1)
-                )
-
-            Text(self.contactInfoText)
-                .font(self.theme.typography.bodySmall)
-                .foregroundStyle(.secondary)
-                .textSelection(.enabled)
-
-            Divider()
-
-            HStack {
-                Spacer()
-
-                Button("Cancel") {
-                    self.onCancel()
-                }
-
-                Button("Yes") {
-                    self.onConfirm()
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.red)
-            }
-        }
-        .padding(20)
-        .frame(width: 420)
     }
 }

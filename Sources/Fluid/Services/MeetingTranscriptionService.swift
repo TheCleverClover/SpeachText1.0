@@ -297,15 +297,6 @@ final class MeetingTranscriptionService: ObservableObject {
                 self.currentStatus = "Complete!"
                 self.progress = 1.0
 
-                AnalyticsService.shared.capture(
-                    .meetingTranscriptionCompleted,
-                    properties: [
-                        "success": true,
-                        "file_type": fileURL.pathExtension.lowercased(),
-                        "audio_duration_bucket": AnalyticsBuckets.bucketSeconds(duration),
-                        "processing_time_bucket": AnalyticsBuckets.bucketSeconds(processingTime),
-                    ]
-                )
 
                 self.result = result
                 FileTranscriptionHistoryStore.shared.addEntry(result)
@@ -427,15 +418,6 @@ final class MeetingTranscriptionService: ObservableObject {
                 fileName: fileURL.lastPathComponent
             )
 
-            AnalyticsService.shared.capture(
-                .meetingTranscriptionCompleted,
-                properties: [
-                    "success": true,
-                    "file_type": fileURL.pathExtension.lowercased(),
-                    "audio_duration_bucket": AnalyticsBuckets.bucketSeconds(duration),
-                    "processing_time_bucket": AnalyticsBuckets.bucketSeconds(processingTime),
-                ]
-            )
 
             self.result = result
             FileTranscriptionHistoryStore.shared.addEntry(result)
@@ -443,26 +425,10 @@ final class MeetingTranscriptionService: ObservableObject {
 
         } catch let error as TranscriptionError {
             self.error = error.localizedDescription
-            AnalyticsService.shared.capture(
-                .meetingTranscriptionCompleted,
-                properties: [
-                    "success": false,
-                    "file_type": fileURL.pathExtension.lowercased(),
-                    "category": errorCategory(for: error),
-                ]
-            )
             throw error
         } catch {
             let wrappedError = TranscriptionError.transcriptionFailed(error.localizedDescription)
             self.error = wrappedError.localizedDescription
-            AnalyticsService.shared.capture(
-                .meetingTranscriptionCompleted,
-                properties: [
-                    "success": false,
-                    "file_type": fileURL.pathExtension.lowercased(),
-                    "category": self.errorCategory(for: wrappedError),
-                ]
-            )
             throw wrappedError
         }
     }
@@ -619,17 +585,6 @@ final class MeetingTranscriptionService: ObservableObject {
         self.currentStatus = "Complete!"
         self.progress = 1.0
 
-        AnalyticsService.shared.capture(
-            .meetingTranscriptionCompleted,
-            properties: [
-                "success": true,
-                "file_type": fileURL.pathExtension.lowercased(),
-                "audio_duration_bucket": AnalyticsBuckets.bucketSeconds(duration),
-                "processing_time_bucket": AnalyticsBuckets.bucketSeconds(processingTime),
-                "speaker_labels": true,
-                "speaker_count": Set(segments.map(\.speaker)).count,
-            ]
-        )
 
         self.result = result
         FileTranscriptionHistoryStore.shared.addEntry(result)

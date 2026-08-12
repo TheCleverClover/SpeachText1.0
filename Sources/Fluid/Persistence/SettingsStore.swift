@@ -1401,20 +1401,6 @@ final class SettingsStore: ObservableObject {
         }
     }
 
-    /// Anonymous analytics toggle (default: ON). Uses default-true semantics so existing installs
-    /// upgrading to a version that includes analytics do not silently default to OFF.
-    var shareAnonymousAnalytics: Bool {
-        get {
-            let value = self.defaults.object(forKey: Keys.shareAnonymousAnalytics)
-            if value == nil { return true }
-            return self.defaults.bool(forKey: Keys.shareAnonymousAnalytics)
-        }
-        set {
-            objectWillChange.send()
-            self.defaults.set(newValue, forKey: Keys.shareAnonymousAnalytics)
-        }
-    }
-
     var privateAIInterestCaptured: Bool {
         get { self.defaults.bool(forKey: Keys.privateAIInterestCaptured) }
         set {
@@ -2631,7 +2617,7 @@ final class SettingsStore: ObservableObject {
     private func repairForcedOnboardingResetIfNeeded() {
         // 1.6.2 briefly used OnboardingGeneration to force every install through onboarding.
         // Restore existing users who were reset by that migration while keeping fresh installs intact.
-        let hadOpenedBeforeForcedReset = AnalyticsIdentityStore.shared.firstOpenAt.map {
+        let hadOpenedBeforeForcedReset = InstallStateStore.shared.firstOpenAt.map {
             $0 < Self.forcedOnboardingResetIntroducedAt
         } ?? false
         let hasExistingInstallSignal = self.hasLegacyUsageSignals() || hadOpenedBeforeForcedReset
@@ -3187,7 +3173,6 @@ final class SettingsStore: ObservableObject {
             autoUpdateCheckEnabled: self.autoUpdateCheckEnabled,
             betaReleasesEnabled: self.betaReleasesEnabled,
             enableDebugLogs: self.enableDebugLogs,
-            shareAnonymousAnalytics: self.shareAnonymousAnalytics,
             pressAndHoldMode: self.pressAndHoldMode,
             hotkeyMode: self.hotkeyMode,
             enableStreamingPreview: self.enableStreamingPreview,
@@ -3309,7 +3294,6 @@ final class SettingsStore: ObservableObject {
         self.autoUpdateCheckEnabled = payload.autoUpdateCheckEnabled
         self.betaReleasesEnabled = payload.betaReleasesEnabled
         self.enableDebugLogs = payload.enableDebugLogs
-        self.shareAnonymousAnalytics = payload.shareAnonymousAnalytics
         self.hotkeyMode = payload.hotkeyMode ?? (payload.pressAndHoldMode ? .hold : .toggle)
         self.enableStreamingPreview = payload.enableStreamingPreview
         if let skipSilentRecordingsEnabled = payload.skipSilentRecordingsEnabled {
@@ -5067,7 +5051,6 @@ private extension SettingsStore {
         static let providerAPIKeyIdentifiers = "ProviderAPIKeyIdentifiers"
         static let savedProviders = "SavedProviders"
         static let verifiedProviderFingerprints = "VerifiedProviderFingerprints"
-        static let shareAnonymousAnalytics = "ShareAnonymousAnalytics"
         static let privateAIInterestCaptured = "PrivateAIProviderInterestCaptured"
         static let hotkeyShortcutKey = "HotkeyShortcutKey"
         static let primaryDictationShortcutsKey = "PrimaryDictationShortcuts"

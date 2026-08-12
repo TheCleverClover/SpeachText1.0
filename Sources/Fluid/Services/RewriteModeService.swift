@@ -133,14 +133,6 @@ final class RewriteModeService: ObservableObject {
                 "processRewriteRequest success | writeMode=\(self.isWriteMode) | outputChars=\(response.count) | latency=\(String(format: "%.2fs", Date().timeIntervalSince(startTime)))"
             )
 
-            AnalyticsService.shared.capture(
-                .rewriteRunCompleted,
-                properties: [
-                    "write_mode": self.isWriteMode,
-                    "success": true,
-                    "latency_bucket": AnalyticsBuckets.bucketSeconds(Date().timeIntervalSince(startTime)),
-                ]
-            )
         } catch {
             self.conversationHistory.append(Message(role: .assistant, content: "Error: \(error.localizedDescription)"))
             self.isProcessing = false
@@ -148,14 +140,6 @@ final class RewriteModeService: ObservableObject {
                 "processRewriteRequest failure | writeMode=\(self.isWriteMode) | error=\(error.localizedDescription)"
             )
 
-            AnalyticsService.shared.capture(
-                .rewriteRunCompleted,
-                properties: [
-                    "write_mode": self.isWriteMode,
-                    "success": false,
-                    "latency_bucket": AnalyticsBuckets.bucketSeconds(Date().timeIntervalSince(startTime)),
-                ]
-            )
         }
     }
 
@@ -164,13 +148,6 @@ final class RewriteModeService: ObservableObject {
         NSApp.hide(nil) // Restore focus to the previous app
         self.typingService.typeTextInstantly(self.rewrittenText)
 
-        AnalyticsService.shared.capture(
-            .outputDelivered,
-            properties: [
-                "mode": AnalyticsMode.rewrite.rawValue,
-                "method": AnalyticsOutputMethod.typed.rawValue,
-            ]
-        )
     }
 
     func clearState() {

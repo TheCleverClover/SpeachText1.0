@@ -53,6 +53,10 @@ struct SettingsBackupPayload: Codable, Equatable {
     let autoUpdateCheckEnabled: Bool
     let betaReleasesEnabled: Bool
     let enableDebugLogs: Bool
+    let voiceMacrosEnabled: Bool?
+    let voiceMacrosRequirePrefix: Bool?
+    // swiftlint:disable:next discouraged_optional_collection
+    let voiceMacros: [VoiceMacro]?
     let privacyLockEnabled: Bool?
     let privacyLockProtectSensitiveWindows: Bool?
     // swiftlint:disable:next discouraged_optional_collection

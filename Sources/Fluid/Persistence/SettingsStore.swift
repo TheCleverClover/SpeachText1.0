@@ -2654,6 +2654,47 @@ final class SettingsStore: ObservableObject {
         return false
     }
 
+    // MARK: - Voice Macro Settings
+
+    var voiceMacrosEnabled: Bool {
+        get {
+            let value = self.defaults.object(forKey: Keys.voiceMacrosEnabled)
+            return value as? Bool ?? true
+        }
+        set {
+            objectWillChange.send()
+            self.defaults.set(newValue, forKey: Keys.voiceMacrosEnabled)
+        }
+    }
+
+    var voiceMacrosRequirePrefix: Bool {
+        get {
+            let value = self.defaults.object(forKey: Keys.voiceMacrosRequirePrefix)
+            return value as? Bool ?? true
+        }
+        set {
+            objectWillChange.send()
+            self.defaults.set(newValue, forKey: Keys.voiceMacrosRequirePrefix)
+        }
+    }
+
+    var voiceMacros: [VoiceMacro] {
+        get {
+            guard let data = self.defaults.data(forKey: Keys.voiceMacros),
+                  let decoded = try? JSONDecoder().decode([VoiceMacro].self, from: data)
+            else {
+                return VoiceMacroDefaults.items
+            }
+            return decoded
+        }
+        set {
+            objectWillChange.send()
+            if let data = try? JSONEncoder().encode(newValue) {
+                self.defaults.set(data, forKey: Keys.voiceMacros)
+            }
+        }
+    }
+
     // MARK: - Privacy Lock Settings
 
     var privacyLockEnabled: Bool {
@@ -3209,6 +3250,9 @@ final class SettingsStore: ObservableObject {
             autoUpdateCheckEnabled: self.autoUpdateCheckEnabled,
             betaReleasesEnabled: self.betaReleasesEnabled,
             enableDebugLogs: self.enableDebugLogs,
+            voiceMacrosEnabled: self.voiceMacrosEnabled,
+            voiceMacrosRequirePrefix: self.voiceMacrosRequirePrefix,
+            voiceMacros: self.voiceMacros,
             privacyLockEnabled: self.privacyLockEnabled,
             privacyLockProtectSensitiveWindows: self.privacyLockProtectSensitiveWindows,
             privacyLockCustomBundleIDs: self.privacyLockCustomBundleIDs,
@@ -3333,6 +3377,15 @@ final class SettingsStore: ObservableObject {
         self.autoUpdateCheckEnabled = payload.autoUpdateCheckEnabled
         self.betaReleasesEnabled = payload.betaReleasesEnabled
         self.enableDebugLogs = payload.enableDebugLogs
+        if let voiceMacrosEnabled = payload.voiceMacrosEnabled {
+            self.voiceMacrosEnabled = voiceMacrosEnabled
+        }
+        if let voiceMacrosRequirePrefix = payload.voiceMacrosRequirePrefix {
+            self.voiceMacrosRequirePrefix = voiceMacrosRequirePrefix
+        }
+        if let voiceMacros = payload.voiceMacros {
+            self.voiceMacros = voiceMacros
+        }
         if let privacyLockEnabled = payload.privacyLockEnabled {
             self.privacyLockEnabled = privacyLockEnabled
         }
@@ -5143,6 +5196,9 @@ private extension SettingsStore {
 
         // Command Mode Keys
         static let commandModeSelectedModel = "CommandModeSelectedModel"
+        static let voiceMacrosEnabled = "VoiceMacrosEnabled"
+        static let voiceMacrosRequirePrefix = "VoiceMacrosRequirePrefix"
+        static let voiceMacros = "VoiceMacros"
         static let privacyLockEnabled = "PrivacyLockEnabled"
         static let privacyLockProtectSensitiveWindows = "PrivacyLockProtectSensitiveWindows"
         static let privacyLockCustomBundleIDs = "PrivacyLockCustomBundleIDs"

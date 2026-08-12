@@ -56,6 +56,7 @@ struct SettingsView: View {
     // which races with SwiftUI's AttributeGraph metadata processing and causes EXC_BAD_ACCESS crashes.
     @State private var cachedDefaultInputUID: String = ""
     @State private var cachedDefaultOutputName: String = ""
+    @State private var showVoiceMacroSettings = false
     @State private var showPrivacyLockSettings = false
 
     @State private var rollbackVersion: String = ""
@@ -958,6 +959,31 @@ struct SettingsView: View {
                                     Divider().opacity(0.2)
 
                                     self.optionToggleRow(
+                                        title: "Voice Macros",
+                                        description: "Run exact, deterministic actions from normal dictation without relying on an AI provider.",
+                                        isOn: Binding(
+                                            get: { SettingsStore.shared.voiceMacrosEnabled },
+                                            set: { SettingsStore.shared.voiceMacrosEnabled = $0 }
+                                        ),
+                                        allowsDescriptionWrapping: true
+                                    )
+
+                                    HStack {
+                                        Button("Manage Voice Macros…") {
+                                            self.showVoiceMacroSettings = true
+                                        }
+                                        .buttonStyle(.link)
+
+                                        Spacer()
+
+                                        Label("Exact phrase matching", systemImage: "checkmark.seal")
+                                            .font(.caption)
+                                            .foregroundStyle(self.settingsSecondaryText)
+                                    }
+                                    .padding(.top, 6)
+                                    Divider().opacity(0.2)
+
+                                    self.optionToggleRow(
                                         title: "Privacy Lock",
                                         description: "Keep protected-app dictation local, skip history and clipboard copies, and block Command and Rewrite modes.",
                                         isOn: Binding(
@@ -1412,6 +1438,10 @@ struct SettingsView: View {
                 }
             }
             .padding(16)
+        }
+        .sheet(isPresented: self.$showVoiceMacroSettings) {
+            VoiceMacroSettingsView()
+                .appTheme(self.theme)
         }
         .sheet(isPresented: self.$showPrivacyLockSettings) {
             PrivacyLockSettingsView()

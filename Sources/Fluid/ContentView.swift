@@ -2185,6 +2185,10 @@ struct ContentView: View {
             return
         }
 
+        if await self.processVoiceMacroIfMatched(transcribedText) {
+            return
+        }
+
         var finalText: String
         var aiFallbackReason: String?
         var postProcessingModel: String?
@@ -3032,6 +3036,55 @@ struct ContentView: View {
     }
 
     // MARK: - Command Mode Voice Processing
+
+    private func processVoiceMacroIfMatched(_ transcription: String) async -> Bool {
+        guard let macro = VoiceMacroService.match(transcription) else { return false }
+
+        if self.recordingPrivacyLockDecision.isLocked, macro.actionKind != .insertText {
+            await self.showPrivacyLockBlockedMode("Voice Macro")
+            return true
+        }
+
+        DebugLogger.shared.info(
+            "Voice macro matched (id=\(macro.id), action=\(macro.actionKind.rawValue))",
+            source: "ContentView"
+        )
+        self.menuBarManager.setProcessing(true)
+        NotchOverlayManager.shared.updateTranscriptionText("Running \(macro.name)…")
+
+        let outcome = await VoiceMacroService.execute(macro)
+        switch outcome {
+        case .insertText(let text):
+            let typingTarget = self.resolveTypingTargetPID()
+            if typingTarget.shouldRestoreOriginalFocus {
+                await self.restoreFocusToRecordingTarget()
+            }
+            self.asr.typeTextToActiveField(text, preferredTargetPID: typingTarget.pid)
+            NotchOverlayManager.shared.updateTranscriptionText("Macro complete")
+            self.hideOverlayAfterOutput()
+
+        case .completed(let message):
+            NotchOverlayManager.shared.updateTranscriptionText(message)
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            await self.menuBarManager.finishProcessingAndHideOverlay()
+
+        case .cancelled:
+            NotchOverlayManager.shared.updateTranscriptionText("Macro cancelled")
+            await self.menuBarManager.finishProcessingAndHideOverlay()
+
+        case .failed(let message):
+            DebugLogger.shared.error("Voice macro failed: \(message)", source: "ContentView")
+            NotchContentState.shared.showAIProcessingFailure(
+                message: "Voice Macro failed: \(message)",
+                canRetry: false
+            )
+            self.menuBarManager.finishProcessingKeepingOverlayVisible()
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            NotchContentState.shared.clearAIProcessingFailure()
+            await self.menuBarManager.finishProcessingAndHideOverlay()
+        }
+        return true
+    }
 
     private func processCommandWithVoice(_ command: String) async {
         DebugLogger.shared.info("Processing voice command (chars=\(command.count))", source: "ContentView")

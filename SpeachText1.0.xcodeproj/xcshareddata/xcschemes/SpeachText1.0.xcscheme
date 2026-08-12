@@ -35,8 +35,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7CDB0A1F2F3C4D5600FB7CAD"
-               BuildableName = "FluidDictationIntegrationTests.xctest"
-               BlueprintName = "FluidDictationIntegrationTests"
+               BuildableName = "SpeachTextTests.xctest"
+               BlueprintName = "SpeachTextTests"
                ReferencedContainer = "container:SpeachText1.0.xcodeproj">
             </BuildableReference>
          </TestableReference>

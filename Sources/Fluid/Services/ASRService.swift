@@ -158,7 +158,7 @@ final class ASRService: ObservableObject {
         }
         let rms = Float(sqrt(totalSquareSum / Double(samples.count)))
 
-        // Calibrated conservatively against real FluidVoice captures. Requiring
+        // Calibrated conservatively against real SpeachText1.0 captures. Requiring
         // all three conditions keeps quiet speech and short words on the ASR path.
         let shouldSkip = peak < 0.01 && rms < 0.002 && maximumFrameRMS < 0.0045
         return ShortAudioSilenceAssessment(
@@ -3457,7 +3457,7 @@ final class ASRService: ObservableObject {
 
     private func handleDefaultInputChanged() {
         // Microphone priority is app-owned. A macOS default-input change must
-        // never move or restart FluidVoice's selected microphone.
+        // never move or restart SpeachText1.0's selected microphone.
     }
 
     private func handleDefaultOutputChanged() {

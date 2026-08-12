@@ -8,7 +8,7 @@ struct ChangelogView: View {
     @State private var errorMessage: String?
 
     private let owner = "altic-dev"
-    private let repo = "Fluid-oss"
+    private let repo = "SpeachText1.0"
     private let releaseLimit = 3
 
     var body: some View {
@@ -98,7 +98,7 @@ struct ChangelogView: View {
                 Text("No changelog available")
                     .font(self.theme.typography.sectionTitle)
                     .foregroundStyle(self.theme.palette.primaryText)
-                Text("FluidVoice could not load GitHub release notes right now.")
+                Text("SpeachText1.0 could not load GitHub release notes right now.")
                     .font(self.theme.typography.bodySmall)
                     .foregroundStyle(self.theme.palette.secondaryText)
             }
@@ -168,7 +168,7 @@ struct ChangelogView: View {
 
     private var cacheKey: String {
         let channel = SettingsStore.shared.betaReleasesEnabled ? "beta" : "stable"
-        return "FluidVoiceChangelogCache.\(channel)"
+        return "SpeachText1.0ChangelogCache.\(channel)"
     }
 }
 

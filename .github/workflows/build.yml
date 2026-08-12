@@ -33,7 +33,7 @@ jobs:
           relevant:
             - 'Sources/**'
             - 'Tests/**'
-            - 'Fluid.xcodeproj/**'
+            - 'SpeachText1.0.xcodeproj/**'
             - 'Package.swift'
             - 'Package.resolved'
             - 'Info.plist'
@@ -61,7 +61,7 @@ jobs:
           lint --strict --config .swiftlint.yml
 
   build:
-    name: Build FluidVoice
+    name: Build SpeachText1.0
     if: needs.changes.outputs.relevant == 'true' && needs.lint.result == 'success'
     needs: [changes, lint]
     runs-on: macos-latest
@@ -94,7 +94,7 @@ jobs:
       run: |
         set -o pipefail
         xcodebuild test \
-          -project Fluid.xcodeproj \
+          -project SpeachText1.0.xcodeproj \
           -scheme Fluid \
           -destination 'platform=macOS,arch=arm64' \
           -skip-testing:FluidDictationIntegrationTests/DictationE2ETests/testDictationEndToEnd_whisperTiny_transcribesFixture \

@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "FluidVoice",
+    name: "SpeachText1.0",
     platforms: [
         .macOS("15.0"),
     ],
@@ -25,7 +25,7 @@ let package = Package(
             ]
         ),
         .executableTarget(
-            name: "FluidVoice",
+            name: "SpeachText1.0",
             dependencies: [
                 "AppUpdater",
                 "CoreAudioCaptureSupport",

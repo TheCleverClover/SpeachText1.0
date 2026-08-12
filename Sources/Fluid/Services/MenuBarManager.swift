@@ -718,7 +718,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
             do {
                 try await SimpleUpdater.shared.checkAndUpdate(
                     owner: "altic-dev",
-                    repo: "Fluid-oss",
+                    repo: "SpeachText1.0",
                     includePrerelease: SettingsStore.shared.betaReleasesEnabled
                 )
             } catch SimpleUpdateError.updateAlreadyInProgress {
@@ -730,7 +730,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
                     msg.messageText = isBeta ? "You’re Up To Date (Beta)" : "You’re Up To Date"
                     msg.informativeText = isBeta
                         ? "You're already running the latest build available in the beta channel."
-                        : "You're already running the latest version of FluidVoice."
+                        : "You're already running the latest version of SpeachText1.0."
                 } else {
                     msg.messageText = "Update Check Failed"
                     msg.informativeText = "Unable to check for updates. Please try again later.\n\nError: \(error.localizedDescription)"
@@ -758,7 +758,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
 
         let confirm = NSAlert()
         confirm.messageText = "Rollback to \(availableVersion)?"
-        confirm.informativeText = "This will restore the backup and relaunch FluidVoice."
+        confirm.informativeText = "This will restore the backup and relaunch SpeachText1.0."
         confirm.alertStyle = .warning
         confirm.addButton(withTitle: "Rollback")
         confirm.addButton(withTitle: "Cancel")
@@ -770,7 +770,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
                 try await SimpleUpdater.shared.rollbackToLatestBackup()
                 let success = NSAlert()
                 success.messageText = "Rollback Successful"
-                success.informativeText = "Rolled back to \(availableVersion). FluidVoice will relaunch shortly."
+                success.informativeText = "Rolled back to \(availableVersion). SpeachText1.0 will relaunch shortly."
                 success.alertStyle = .informational
                 success.addButton(withTitle: "Report Bug")
                 success.addButton(withTitle: "OK")
@@ -790,7 +790,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
     }
 
     private func openIssueReportingPage() {
-        guard let url = URL(string: "https://github.com/altic-dev/Fluid-oss/issues/new/choose") else { return }
+        guard let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/issues/new/choose") else { return }
         NSWorkspace.shared.open(url)
     }
 
@@ -799,7 +799,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
             do {
                 let options = try await SimpleUpdater.shared.fetchRecentReleaseBuildOptions(
                     owner: "altic-dev",
-                    repo: "Fluid-oss",
+                    repo: "SpeachText1.0",
                     limit: 3,
                     includePrerelease: SettingsStore.shared.betaReleasesEnabled
                 )
@@ -841,7 +841,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
     }
 
     private func openAllReleasesPage() {
-        guard let url = URL(string: "https://github.com/altic-dev/Fluid-oss/releases") else { return }
+        guard let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/releases") else { return }
         NSWorkspace.shared.open(url)
     }
 
@@ -894,7 +894,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         guard window.styleMask.contains(.titled) else { return false }
         guard window.canBecomeKey else { return false }
         guard window.isMiniaturized == false else { return false }
-        return window.title == "FluidVoice" || window.title.contains("FluidVoice")
+        return window.title == "SpeachText1.0" || window.title.contains("SpeachText1.0")
     }
 
     @objc private func openPreferences() {
@@ -956,7 +956,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
             backing: .buffered,
             defer: false
         )
-        window.title = "FluidVoice"
+        window.title = "SpeachText1.0"
         window.animationBehavior = .none
         window.minSize = self.mainWindowMinimumSize
         window.isReleasedWhenClosed = false

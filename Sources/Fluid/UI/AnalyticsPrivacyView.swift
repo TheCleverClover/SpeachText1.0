@@ -10,7 +10,7 @@ struct AnalyticsPrivacyView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Anonymous Analytics")
                         .font(.system(size: 18, weight: .semibold))
-                    Text("What FluidVoice collects when analytics is enabled")
+                    Text("What SpeachText1.0 collects when analytics is enabled")
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                 }
@@ -83,7 +83,7 @@ struct AnalyticsPrivacyView: View {
         }
 
         if let githubRange = text.range(of: "GitHub") {
-            text[githubRange].link = URL(string: "https://github.com/altic-dev/FluidVoice")
+            text[githubRange].link = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0")
             text[githubRange].foregroundColor = self.theme.palette.accent
         }
 

@@ -233,7 +233,7 @@ struct SettingsView: View {
                             // Launch at startup
                             self.settingsToggleRow(
                                 title: "Launch at startup",
-                                description: "Automatically start FluidVoice when you log in",
+                                description: "Automatically start SpeachText1.0 when you log in",
                                 footnote: self.settings.launchAtStartupStatusMessage,
                                 errorMessage: self.settings.launchAtStartupErrorMessage,
                                 isOn: self.launchAtStartupBinding
@@ -243,7 +243,7 @@ struct SettingsView: View {
                             // Show window when launched at login
                             self.settingsToggleRow(
                                 title: "Show window when launched at login",
-                                description: "When off, FluidVoice starts silently in the menu bar at login. Opening the app yourself always shows the window.",
+                                description: "When off, SpeachText1.0 starts silently in the menu bar at login. Opening the app yourself always shows the window.",
                                 isOn: Binding(
                                     get: { SettingsStore.shared.showMainWindowAtLoginLaunch },
                                     set: { SettingsStore.shared.showMainWindowAtLoginLaunch = $0 }
@@ -254,7 +254,7 @@ struct SettingsView: View {
                             // Hide from Dock & App Switcher
                             self.settingsToggleRow(
                                 title: "Hide from Dock & App Switcher",
-                                description: "Keep FluidVoice in the menu bar only (hides Dock icon and Cmd+Tab entry)",
+                                description: "Keep SpeachText1.0 in the menu bar only (hides Dock icon and Cmd+Tab entry)",
                                 footnote: "Note: May require app restart to take effect.",
                                 isOn: Binding(
                                     get: { SettingsStore.shared.hideFromDockAndAppSwitcher },
@@ -453,7 +453,7 @@ struct SettingsView: View {
                                             let includePrerelease = SettingsStore.shared.betaReleasesEnabled
                                             try await SimpleUpdater.shared.checkAndUpdate(
                                                 owner: "altic-dev",
-                                                repo: "Fluid-oss",
+                                                repo: "SpeachText1.0",
                                                 includePrerelease: includePrerelease
                                             )
                                         } catch SimpleUpdateError.updateAlreadyInProgress {
@@ -468,7 +468,7 @@ struct SettingsView: View {
                                                 msg.messageText = isBeta ? "You're Up To Date (Beta)" : "You're Up To Date"
                                                 msg.informativeText = isBeta
                                                     ? "You're already running the latest build available in the beta channel."
-                                                    : "You're already running the latest version of FluidVoice."
+                                                    : "You're already running the latest version of SpeachText1.0."
                                             } else {
                                                 msg.messageText = "Update Check Failed"
                                                 msg.informativeText = "Unable to check for updates. Please try again later.\n\nError: \(error.localizedDescription)"
@@ -483,7 +483,7 @@ struct SettingsView: View {
                                 .controlSize(.regular)
 
                                 Button("Release Notes") {
-                                    if let url = URL(string: "https://github.com/altic-dev/Fluid-oss/releases") {
+                                    if let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/releases") {
                                         NSWorkspace.shared.open(url)
                                     }
                                 }
@@ -497,7 +497,7 @@ struct SettingsView: View {
                                     let targetVersion = self.rollbackVersion
                                     let confirm = NSAlert()
                                     confirm.messageText = "Rollback to \(infoText)?"
-                                    confirm.informativeText = "This will restore a previous app version and relaunch FluidVoice."
+                                    confirm.informativeText = "This will restore a previous app version and relaunch SpeachText1.0."
                                     confirm.alertStyle = .warning
                                     confirm.addButton(withTitle: "Rollback")
                                     confirm.addButton(withTitle: "Cancel")
@@ -517,7 +517,7 @@ struct SettingsView: View {
                                             await MainActor.run {
                                                 let success = NSAlert()
                                                 success.messageText = "Rollback Successful"
-                                                success.informativeText = "Rolled back to \(targetVersion). FluidVoice will relaunch shortly."
+                                                success.informativeText = "Rolled back to \(targetVersion). SpeachText1.0 will relaunch shortly."
                                                 success.alertStyle = .informational
                                                 success.addButton(withTitle: "Report Bug")
                                                 success.addButton(withTitle: "OK")
@@ -992,7 +992,7 @@ struct SettingsView: View {
 
                                     self.optionToggleRow(
                                         title: "Pause Media During Transcription",
-                                        description: "Automatically pause currently playing audio/video when transcription starts. Resumes only if FluidVoice paused it.",
+                                        description: "Automatically pause currently playing audio/video when transcription starts. Resumes only if SpeachText1.0 paused it.",
                                         isOn: Binding(
                                             get: { SettingsStore.shared.pauseMediaDuringTranscription },
                                             set: { SettingsStore.shared.pauseMediaDuringTranscription = $0 }
@@ -1002,7 +1002,7 @@ struct SettingsView: View {
 
                                     self.optionToggleRow(
                                         title: "Share Anonymous Analytics",
-                                        description: "Send anonymous usage and performance metrics to help improve FluidVoice. Never includes transcription text or prompts.",
+                                        description: "Send anonymous usage and performance metrics to help improve SpeachText1.0. Never includes transcription text or prompts.",
                                         isOn: self.analyticsToggleBinding
                                     )
 
@@ -1529,7 +1529,7 @@ struct SettingsView: View {
     }
 
     private func openIssueReportingPage() {
-        guard let url = URL(string: "https://github.com/altic-dev/Fluid-oss/issues/new/choose") else { return }
+        guard let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/issues/new/choose") else { return }
         NSWorkspace.shared.open(url)
     }
 
@@ -1552,7 +1552,7 @@ struct SettingsView: View {
 
             self.presentInfoAlert(
                 title: "Backup Exported",
-                message: "Saved your FluidVoice backup to:\n\(url.path)"
+                message: "Saved your SpeachText1.0 backup to:\n\(url.path)"
             )
         } catch {
             self.presentErrorAlert(
@@ -1640,7 +1640,7 @@ struct SettingsView: View {
             let confirm = NSAlert()
             confirm.messageText = "Prune saved audio?"
             confirm.informativeText = """
-            This budget is below current audio usage. FluidVoice will delete the oldest saved audio first and keep transcript history.
+            This budget is below current audio usage. SpeachText1.0 will delete the oldest saved audio first and keep transcript history.
             """
             confirm.alertStyle = .warning
             confirm.addButton(withTitle: "Apply and Prune")
@@ -1720,7 +1720,7 @@ struct SettingsView: View {
             do {
                 let options = try await SimpleUpdater.shared.fetchRecentReleaseBuildOptions(
                     owner: "altic-dev",
-                    repo: "Fluid-oss",
+                    repo: "SpeachText1.0",
                     limit: 3,
                     includePrerelease: SettingsStore.shared.betaReleasesEnabled
                 )
@@ -1762,7 +1762,7 @@ struct SettingsView: View {
     }
 
     private func openAllReleasesPage() {
-        guard let url = URL(string: "https://github.com/altic-dev/Fluid-oss/releases") else { return }
+        guard let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/releases") else { return }
         NSWorkspace.shared.open(url)
     }
 
@@ -2282,7 +2282,7 @@ private extension SettingsView {
             )
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
-            Text("FluidVoice tries microphones from top to bottom. Drag to reorder; unavailable devices keep their place.")
+            Text("SpeachText1.0 tries microphones from top to bottom. Drag to reorder; unavailable devices keep their place.")
                 .font(self.theme.typography.bodySmall)
                 .foregroundStyle(self.settingsSecondaryText)
                 .fixedSize(horizontal: false, vertical: true)
@@ -2469,7 +2469,7 @@ private extension SettingsView {
             )
         } else {
             self.microphoneQualityGuidanceRow(
-                message: "This order applies only to FluidVoice and does not change your macOS input.",
+                message: "This order applies only to SpeachText1.0 and does not change your macOS input.",
                 systemImage: "info.circle",
                 color: self.settingsSecondaryText
             )
@@ -2638,7 +2638,7 @@ private struct SettingsPersistentScrollView<Content: View>: NSViewRepresentable 
 }
 
 private struct MicrophoneSettingsScrollAnchor: NSViewRepresentable {
-    static let identifier = NSUserInterfaceItemIdentifier("FluidVoice.MicrophoneSettingsScrollAnchor")
+    static let identifier = NSUserInterfaceItemIdentifier("SpeachText1.0.MicrophoneSettingsScrollAnchor")
 
     func makeNSView(context _: Context) -> NSView {
         let view = NSView()
@@ -2829,7 +2829,7 @@ struct AnalyticsConfirmationView: View {
         }
 
         if let githubRange = text.range(of: "GitHub") {
-            text[githubRange].link = URL(string: "https://github.com/altic-dev/FluidVoice")
+            text[githubRange].link = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0")
             text[githubRange].foregroundColor = self.theme.palette.accent
         }
 
@@ -2841,7 +2841,7 @@ struct AnalyticsConfirmationView: View {
             Text("Are you sure you want to stop sharing anonymous analytics?")
                 .font(.headline)
 
-            Text("By sharing anonymous usage data, you help us build the features you care about most. We never collect personal information (Audio, Transcription text etc), ever. Your support simply helps us make FluidVoice better for you.")
+            Text("By sharing anonymous usage data, you help us build the features you care about most. We never collect personal information (Audio, Transcription text etc), ever. Your support simply helps us make SpeachText1.0 better for you.")
                 .font(self.theme.typography.bodySmall)
                 .foregroundStyle(.secondary)
                 .padding(12)

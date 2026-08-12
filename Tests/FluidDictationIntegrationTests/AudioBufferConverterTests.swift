@@ -1,5 +1,5 @@
 import AVFoundation
-@testable import FluidVoice_Debug
+@testable import SpeachText1.0_Debug
 import XCTest
 
 final class AudioBufferConverterTests: XCTestCase {

@@ -224,7 +224,7 @@ private actor AnalyticsCore {
         // PostHog expects distinct_id inside properties.
         var props = properties
         props["distinct_id"] = distinctID
-        props["$lib"] = "FluidVoice"
+        props["$lib"] = "SpeachText1.0"
         props["$lib_version"] = "1"
         event["properties"] = props
 

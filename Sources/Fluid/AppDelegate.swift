@@ -132,7 +132,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             return true
         }
 
-        // Ensure dock-icon reopen always foregrounds FluidVoice.
+        // Ensure dock-icon reopen always foregrounds SpeachText1.0.
         sender.activate(ignoringOtherApps: true)
 
         return !self.bringMainWindowToFrontIfPresent()
@@ -329,7 +329,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     private func isMainWindow(_ window: NSWindow) -> Bool {
         guard window.level == .normal else { return false }
         guard window.styleMask.contains(.titled) else { return false }
-        return window.title == "FluidVoice" || window.title.contains("FluidVoice")
+        return window.title == "SpeachText1.0" || window.title.contains("SpeachText1.0")
     }
 
     // MARK: - Periodic Update Checks
@@ -358,9 +358,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             "Manual update check requested. Current version: \(currentVersion)",
             source: "AppDelegate"
         )
-        DebugLogger.shared.info("Checking repository: altic-dev/Fluid-oss", source: "AppDelegate")
+        DebugLogger.shared.info("Checking repository: YOUR_GITHUB_USERNAME/SpeachText1.0", source: "AppDelegate")
         DebugLogger.shared.debug("🔍 DEBUG: Manual update check started - Current version: \(currentVersion)", source: "AppDelegate")
-        DebugLogger.shared.debug("🔍 DEBUG: Repository: altic-dev/Fluid-oss", source: "AppDelegate")
+        DebugLogger.shared.debug("🔍 DEBUG: Repository: YOUR_GITHUB_USERNAME/SpeachText1.0", source: "AppDelegate")
         let includePrerelease = SettingsStore.shared.betaReleasesEnabled
         DebugLogger.shared.info(
             "Beta releases opt-in: \(SettingsStore.shared.betaReleasesEnabled)",
@@ -372,7 +372,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 // Use our tolerant updater to handle v-prefixed tags and 2-part versions
                 try await SimpleUpdater.shared.checkAndUpdate(
                     owner: "altic-dev",
-                    repo: "Fluid-oss",
+                    repo: "SpeachText1.0",
                     includePrerelease: includePrerelease
                 )
             } catch SimpleUpdateError.updateAlreadyInProgress {
@@ -415,13 +415,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             // Wait 3 seconds after launch before checking
             try? await Task.sleep(nanoseconds: 3_000_000_000)
 
-            DebugLogger.shared.info("Performing automatic update check for altic-dev/Fluid-oss", source: "AppDelegate")
+            DebugLogger.shared.info("Performing automatic update check for YOUR_GITHUB_USERNAME/SpeachText1.0", source: "AppDelegate")
 
             do {
                 let includePrerelease = SettingsStore.shared.betaReleasesEnabled
                 let result = try await SimpleUpdater.shared.checkForUpdate(
                     owner: "altic-dev",
-                    repo: "Fluid-oss",
+                    repo: "SpeachText1.0",
                     includePrerelease: includePrerelease
                 )
 
@@ -471,7 +471,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
         let alert = NSAlert()
         alert.messageText = "Update Available"
-        alert.informativeText = "FluidVoice \(version) is now available. Would you like to install it now?\n\nThe app will restart automatically after installation."
+        alert.informativeText = "SpeachText1.0 \(version) is now available. Would you like to install it now?\n\nThe app will restart automatically after installation."
         alert.alertStyle = .informational
         alert.addButton(withTitle: "Install Now")
         alert.addButton(withTitle: "Later")

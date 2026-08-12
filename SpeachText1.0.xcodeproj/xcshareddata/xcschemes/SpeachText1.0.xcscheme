@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7C078D8E2E3B339200FB7CAC"
-               BuildableName = "FluidVoice.app"
+               BuildableName = "SpeachText1.0.app"
                BlueprintName = "fluid"
-               ReferencedContainer = "container:Fluid.xcodeproj">
+               ReferencedContainer = "container:SpeachText1.0.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -37,7 +37,7 @@
                BlueprintIdentifier = "7CDB0A1F2F3C4D5600FB7CAD"
                BuildableName = "FluidDictationIntegrationTests.xctest"
                BlueprintName = "FluidDictationIntegrationTests"
-               ReferencedContainer = "container:Fluid.xcodeproj">
+               ReferencedContainer = "container:SpeachText1.0.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -57,9 +57,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7C078D8E2E3B339200FB7CAC"
-            BuildableName = "FluidVoice.app"
+            BuildableName = "SpeachText1.0.app"
             BlueprintName = "fluid"
-            ReferencedContainer = "container:Fluid.xcodeproj">
+            ReferencedContainer = "container:SpeachText1.0.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -74,9 +74,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7C078D8E2E3B339200FB7CAC"
-            BuildableName = "FluidVoice.app"
+            BuildableName = "SpeachText1.0.app"
             BlueprintName = "fluid"
-            ReferencedContainer = "container:Fluid.xcodeproj">
+            ReferencedContainer = "container:SpeachText1.0.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
@@ -85,7 +85,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
-      customArchiveName = "Fluid"
+      customArchiveName = "SpeachText1.0"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>

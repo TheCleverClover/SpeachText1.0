@@ -19,7 +19,7 @@ enum KeychainServiceError: Error, LocalizedError {
 }
 
 /// Lightweight helper for storing provider API keys in the system Keychain.
-/// Keys are stored as generic passwords scoped to the FluidVoice service.
+/// Keys are stored as generic passwords scoped to the SpeachText1.0 service.
 final class KeychainService {
     static let shared = KeychainService()
 

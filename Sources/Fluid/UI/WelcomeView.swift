@@ -66,9 +66,9 @@ struct WelcomeView: View {
                             .font(self.theme.typography.titleIcon)
                             .foregroundStyle(self.theme.palette.accent)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text((self.asr.isAsrReady || self.asr.modelsExistOnDisk) ? "Getting Started" : "Welcome to FluidVoice")
+                            Text((self.asr.isAsrReady || self.asr.modelsExistOnDisk) ? "Getting Started" : "Welcome to SpeachText1.0")
                                 .font(self.theme.typography.title)
-                            Text("Talk anywhere. FluidVoice types for you.")
+                            Text("Talk anywhere. SpeachText1.0 types for you.")
                                 .font(self.theme.typography.bodySmall)
                                 .foregroundStyle(.secondary)
                         }
@@ -119,8 +119,8 @@ struct WelcomeView: View {
                                     step: 2,
                                     title: self.asr.micStatus == .authorized ? "Microphone Permission Granted" : "Grant Microphone Permission",
                                     description: self.asr.micStatus == .authorized
-                                        ? "FluidVoice has access to your microphone"
-                                        : "Allow FluidVoice to access your microphone for voice input",
+                                        ? "SpeachText1.0 has access to your microphone"
+                                        : "Allow SpeachText1.0 to access your microphone for voice input",
                                     status: self.asr.micStatus == .authorized ? .completed : .pending,
                                     action: {
                                         if self.asr.micStatus == .notDetermined {
@@ -716,20 +716,20 @@ struct OnboardingFlowView: View {
             case .aiEnhancement:
                 return "Set Up AI Enhancement"
             case .playground:
-                return "Try FluidVoice"
+                return "Try SpeachText1.0"
             }
         }
 
         var subtitle: String {
             switch self {
             case .landing:
-                return "Talk anywhere. FluidVoice types for you."
+                return "Talk anywhere. SpeachText1.0 types for you."
             case .language:
                 return "Pick the language you speak most."
             case .voiceModel:
                 return "Choose the best local engine for your language."
             case .permissions:
-                return "Allow FluidVoice to listen and type into other apps."
+                return "Allow SpeachText1.0 to listen and type into other apps."
             case .aiEnhancement:
                 return "Optional: Configure AI post-processing or skip this step."
             case .playground:
@@ -1022,7 +1022,7 @@ struct OnboardingFlowView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Welcome to FluidVoice")
+            Text("Welcome to SpeachText1.0")
                 .font(self.theme.typography.title)
                 .foregroundStyle(self.theme.palette.primaryText)
 
@@ -1751,7 +1751,7 @@ struct OnboardingFlowView: View {
                             FluidOnboardingCompactAppIconMark(size: 66)
                                 .padding(.bottom, 22)
 
-                            Text("Let FluidVoice\nlisten and type")
+                            Text("Let SpeachText1.0\nlisten and type")
                                 .font(.system(size: 28, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .multilineTextAlignment(.center)
@@ -1768,7 +1768,7 @@ struct OnboardingFlowView: View {
                                     stepNumber: 1,
                                     title: self.isMicrophoneReady ? "Microphone access allowed" : "Allow microphone",
                                     subtitle: self.isMicrophoneReady
-                                        ? "Choose the microphone you want FluidVoice to use."
+                                        ? "Choose the microphone you want SpeachText1.0 to use."
                                         : "macOS will ask once. Click Allow to start dictating.",
                                     systemImage: "mic.fill",
                                     isReady: self.isMicrophoneReady,
@@ -1801,7 +1801,7 @@ struct OnboardingFlowView: View {
                                 }
 
                                 if !self.isAccessibilityReady {
-                                    Text("Already enabled it? FluidVoice will update when macOS confirms access.")
+                                    Text("Already enabled it? SpeachText1.0 will update when macOS confirms access.")
                                         .font(.system(size: 12, weight: .medium))
                                         .foregroundStyle(Color.white.opacity(0.42))
                                         .padding(.top, 2)
@@ -1876,7 +1876,7 @@ struct OnboardingFlowView: View {
                             FluidOnboardingCompactAppIconMark(size: 66)
                                 .padding(.bottom, 22)
 
-                            Text("FluidVoice is ready.")
+                            Text("SpeachText1.0 is ready.")
                                 .font(.system(size: 28, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .multilineTextAlignment(.center)
@@ -3007,7 +3007,7 @@ private struct OnboardingMicrophoneSetupPanel: View {
                     .pickerStyle(.menu)
                     .frame(width: 248)
                     .tint(.white)
-                    .accessibilityHint("Moves the selected microphone to first in FluidVoice priority")
+                    .accessibilityHint("Moves the selected microphone to first in SpeachText1.0 priority")
                 }
             }
             .padding(.horizontal, 18)

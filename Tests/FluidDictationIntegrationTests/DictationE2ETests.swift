@@ -1,4 +1,4 @@
-@testable import FluidVoice_Debug
+@testable import SpeachText1.0_Debug
 import Foundation
 import XCTest
 
@@ -132,9 +132,9 @@ final class DictationE2ETests: XCTestCase {
     func testDictionaryTransferDocument_encodesSimpleUserFormat() throws {
         let document = DictionaryTransferDocument(
             replacements: [
-                DictionaryTransferReplacement(from: ["fluid voice", "fluid boys"], to: "FluidVoice"),
+                DictionaryTransferReplacement(from: ["fluid voice", "fluid boys"], to: "SpeachText1.0"),
             ],
-            customWords: ["FluidVoice", "GEMBA-E"]
+            customWords: ["SpeachText1.0", "GEMBA-E"]
         )
 
         let data = try DictionaryTransferService.shared.encode(document)
@@ -144,8 +144,8 @@ final class DictationE2ETests: XCTestCase {
         let firstReplacement = try XCTUnwrap(replacements.first)
 
         XCTAssertEqual(firstReplacement["from"] as? [String], ["fluid voice", "fluid boys"])
-        XCTAssertEqual(firstReplacement["to"] as? String, "FluidVoice")
-        XCTAssertEqual(root["customWords"] as? [String], ["FluidVoice", "GEMBA-E"])
+        XCTAssertEqual(firstReplacement["to"] as? String, "SpeachText1.0")
+        XCTAssertEqual(root["customWords"] as? [String], ["SpeachText1.0", "GEMBA-E"])
         XCTAssertFalse(json.contains("\"triggers\""))
         XCTAssertFalse(json.contains("\"replacement\""))
         XCTAssertFalse(json.contains("\"aliases\""))
@@ -154,9 +154,9 @@ final class DictationE2ETests: XCTestCase {
     func testDictionaryTransferImport_replaceMapsSimpleFormatToStores() throws {
         let document = DictionaryTransferDocument(
             replacements: [
-                DictionaryTransferReplacement(from: [" Fluid Voice ", "FLUID BOYS", ""], to: " FluidVoice "),
+                DictionaryTransferReplacement(from: [" Fluid Voice ", "FLUID BOYS", ""], to: " SpeachText1.0 "),
             ],
-            customWords: [" FluidVoice ", "fluidvoice", " Barath "]
+            customWords: [" SpeachText1.0 ", "fluidvoice", " Barath "]
         )
         let existingReplacement = SettingsStore.CustomDictionaryEntry(triggers: ["old"], replacement: "Old")
         let existingWord = ParakeetVocabularyStore.VocabularyConfig.Term(text: "OldWord", weight: 13.0)
@@ -170,8 +170,8 @@ final class DictationE2ETests: XCTestCase {
 
         XCTAssertEqual(state.replacements.count, 1)
         XCTAssertEqual(state.replacements.first?.triggers, ["fluid voice", "fluid boys"])
-        XCTAssertEqual(state.replacements.first?.replacement, "FluidVoice")
-        XCTAssertEqual(state.customWords.map(\.text), ["FluidVoice", "Barath"])
+        XCTAssertEqual(state.replacements.first?.replacement, "SpeachText1.0")
+        XCTAssertEqual(state.customWords.map(\.text), ["SpeachText1.0", "Barath"])
         XCTAssertEqual(state.customWords.map(\.weight), [10.0, 10.0])
         XCTAssertEqual(state.customWords.map(\.aliases), [[], []])
     }
@@ -183,7 +183,7 @@ final class DictationE2ETests: XCTestCase {
         )
         let existingReplacement = SettingsStore.CustomDictionaryEntry(
             triggers: ["fluid boys"],
-            replacement: "FluidVoice"
+            replacement: "SpeachText1.0"
         )
         let existingWord = ParakeetVocabularyStore.VocabularyConfig.Term(
             text: "Barath",
@@ -192,7 +192,7 @@ final class DictationE2ETests: XCTestCase {
         )
         let document = DictionaryTransferDocument(
             replacements: [
-                DictionaryTransferReplacement(from: ["fluid voice", "fluid boys"], to: "FluidVoice"),
+                DictionaryTransferReplacement(from: ["fluid voice", "fluid boys"], to: "SpeachText1.0"),
             ],
             customWords: ["barath", "GEMBA-E"]
         )
@@ -204,7 +204,7 @@ final class DictationE2ETests: XCTestCase {
             currentCustomWords: [existingWord]
         )
 
-        let fluidVoiceEntry = try XCTUnwrap(state.replacements.first { $0.replacement == "FluidVoice" })
+        let fluidVoiceEntry = try XCTUnwrap(state.replacements.first { $0.replacement == "SpeachText1.0" })
         let oldEntry = try XCTUnwrap(state.replacements.first { $0.replacement == "Old" })
         let barathTerm = try XCTUnwrap(state.customWords.first { $0.text == "Barath" })
         let gembaeTerm = try XCTUnwrap(state.customWords.first { $0.text == "GEMBA-E" })
@@ -222,7 +222,7 @@ final class DictationE2ETests: XCTestCase {
           "replacements": [
             {
               "from": "fluid voice",
-              "to": "FluidVoice"
+              "to": "SpeachText1.0"
             },
             {
               "triggers": ["gemba e"],
@@ -241,7 +241,7 @@ final class DictationE2ETests: XCTestCase {
         )
 
         XCTAssertEqual(state.replacements.map(\.triggers), [["fluid voice"], ["gemba e"]])
-        XCTAssertEqual(state.replacements.map(\.replacement), ["FluidVoice", "GEMBA-E"])
+        XCTAssertEqual(state.replacements.map(\.replacement), ["SpeachText1.0", "GEMBA-E"])
     }
 
     func testDictionaryTransferImport_acceptsLocalAPIReplacementItemsResponse() throws {
@@ -251,7 +251,7 @@ final class DictationE2ETests: XCTestCase {
           "items": [
             {
               "triggers": ["fluid voice"],
-              "replacement": "FluidVoice"
+              "replacement": "SpeachText1.0"
             }
           ]
         }
@@ -266,7 +266,7 @@ final class DictationE2ETests: XCTestCase {
         )
 
         XCTAssertEqual(state.replacements.first?.triggers, ["fluid voice"])
-        XCTAssertEqual(state.replacements.first?.replacement, "FluidVoice")
+        XCTAssertEqual(state.replacements.first?.replacement, "SpeachText1.0")
         XCTAssertEqual(state.customWords.count, 0)
     }
 
@@ -274,7 +274,7 @@ final class DictationE2ETests: XCTestCase {
         defer { ASRService.invalidateDictionaryCache() }
         let document = DictionaryTransferDocument(
             replacements: [
-                DictionaryTransferReplacement(from: ["fluid voice"], to: "FluidVoice"),
+                DictionaryTransferReplacement(from: ["fluid voice"], to: "SpeachText1.0"),
             ],
             customWords: []
         )
@@ -291,7 +291,7 @@ final class DictationE2ETests: XCTestCase {
 
             XCTAssertEqual(
                 ASRService.applyCustomDictionary("I use fluid voice daily."),
-                "I use FluidVoice daily."
+                "I use SpeachText1.0 daily."
             )
         }
     }
@@ -647,8 +647,8 @@ final class DictationE2ETests: XCTestCase {
 
     func testDictionaryTrainingNormalizesSamplesAndIgnoresIntendedText() {
         let triggers = CustomDictionaryTrainingMerge.normalizedTriggers(
-            from: [" Fluid Voice. ", "FluidVoice", "fluid voice", " "],
-            intendedReplacement: "FluidVoice"
+            from: [" Fluid Voice. ", "SpeachText1.0", "fluid voice", " "],
+            intendedReplacement: "SpeachText1.0"
         )
 
         XCTAssertEqual(triggers, ["fluid voice"])
@@ -661,20 +661,20 @@ final class DictationE2ETests: XCTestCase {
         )
         let existingReplacement = SettingsStore.CustomDictionaryEntry(
             triggers: ["fluid boys"],
-            replacement: "FluidVoice"
+            replacement: "SpeachText1.0"
         )
 
         let entries = CustomDictionaryTrainingMerge.mergedEntries(
             current: [existingReplacement, oldReplacement],
             replacement: " fluidvoice ",
-            triggers: ["Fluid Voice.", "fluid boys", "FluidVoice", ""]
+            triggers: ["Fluid Voice.", "fluid boys", "SpeachText1.0", ""]
         )
 
-        let fluidVoiceEntry = entries.first { $0.replacement == "FluidVoice" }
+        let fluidVoiceEntry = entries.first { $0.replacement == "SpeachText1.0" }
         let oldEntry = entries.first { $0.replacement == "Old" }
 
         XCTAssertEqual(entries.count, 2)
-        XCTAssertEqual(entries.map(\.replacement), ["FluidVoice", "Old"])
+        XCTAssertEqual(entries.map(\.replacement), ["SpeachText1.0", "Old"])
         XCTAssertEqual(Set(fluidVoiceEntry?.triggers ?? []), Set(["fluid voice", "fluid boys"]))
         XCTAssertEqual(oldEntry?.triggers, ["old trigger"])
     }
@@ -687,11 +687,11 @@ final class DictationE2ETests: XCTestCase {
 
         let entries = CustomDictionaryTrainingMerge.mergedEntries(
             current: [existingReplacement],
-            replacement: "FluidVoice",
+            replacement: "SpeachText1.0",
             triggers: ["fluid voice"]
         )
 
-        XCTAssertEqual(entries.map(\.replacement), ["FluidVoice", "Existing"])
+        XCTAssertEqual(entries.map(\.replacement), ["SpeachText1.0", "Existing"])
         XCTAssertEqual(entries.first?.triggers, ["fluid voice"])
     }
 
@@ -762,8 +762,8 @@ final class DictationE2ETests: XCTestCase {
     }
 
     func testAutomaticDictionaryCorrectionRejectsNewWordAtDictationEnd() {
-        let before = "FluidVoice works"
-        let after = "FluidVoice works well"
+        let before = "SpeachText1.0 works"
+        let after = "SpeachText1.0 works well"
         let insertedRange = NSRange(location: 0, length: (before as NSString).length)
         let change = AutomaticDictionaryCorrectionDetector.textChange(before: before, after: after)
 
@@ -877,7 +877,7 @@ final class DictationE2ETests: XCTestCase {
         XCTAssertTrue(
             PronunciationProfileEditPolicy.shouldDiscardProfile(
                 previousReplacement: "Barath",
-                updatedReplacement: "FluidVoice"
+                updatedReplacement: "SpeachText1.0"
             )
         )
         XCTAssertFalse(
@@ -912,7 +912,7 @@ final class DictationE2ETests: XCTestCase {
 
     func testProgressiveDownloaderRetainsFileByMovingIt() throws {
         let source = FileManager.default.temporaryDirectory
-            .appendingPathComponent("FluidVoiceDownloadSource-\(UUID().uuidString)")
+            .appendingPathComponent("SpeachText1.0DownloadSource-\(UUID().uuidString)")
         try Data([1, 2, 3]).write(to: source)
         let retained = try ProgressiveFileDownloader.retainDownloadedFile(at: source)
         defer { try? FileManager.default.removeItem(at: retained) }
@@ -922,8 +922,8 @@ final class DictationE2ETests: XCTestCase {
     }
 
     func testAutomaticDictionaryCorrectionIgnoresTypingAfterDictation() {
-        let before = "FluidVoice works"
-        let after = "FluidVoice works well"
+        let before = "SpeachText1.0 works"
+        let after = "SpeachText1.0 works well"
         let insertedRange = NSRange(location: 0, length: (before as NSString).length)
 
         XCTAssertNil(AutomaticDictionaryCorrectionDetector.candidate(
@@ -997,7 +997,7 @@ final class DictationE2ETests: XCTestCase {
 
     func testAutomaticDictionaryCorrectionIgnoresCaseOnlyEdit() {
         let before = "fluidvoice"
-        let after = "FluidVoice"
+        let after = "SpeachText1.0"
         let insertedRange = NSRange(location: 0, length: (before as NSString).length)
 
         XCTAssertNil(AutomaticDictionaryCorrectionDetector.candidate(
@@ -1069,7 +1069,7 @@ final class DictationE2ETests: XCTestCase {
         configuration.globalCooldown = 600
         let policy = AutomaticDictionarySuggestionPolicy(defaults: defaults, configuration: configuration)
         let first = AutomaticDictionaryCorrectionCandidate(heardText: "Barad", correctedText: "Barath")
-        let second = AutomaticDictionaryCorrectionCandidate(heardText: "Floral Voice", correctedText: "FluidVoice")
+        let second = AutomaticDictionaryCorrectionCandidate(heardText: "Floral Voice", correctedText: "SpeachText1.0")
         let now = Date(timeIntervalSince1970: 3000)
 
         XCTAssertTrue(policy.shouldShow(first, now: now))
@@ -1147,7 +1147,7 @@ final class DictationE2ETests: XCTestCase {
           "replacements": [
             {
               "from": 42,
-              "to": "FluidVoice"
+              "to": "SpeachText1.0"
             }
           ]
         }
@@ -1162,7 +1162,7 @@ final class DictationE2ETests: XCTestCase {
           "alpha": 2.8,
           "terms": [
             {
-              "text": "FluidVoice",
+              "text": "SpeachText1.0",
               "aliases": ["fluid voice"],
               "weight": 13.0
             },
@@ -1182,7 +1182,7 @@ final class DictationE2ETests: XCTestCase {
         )
 
         XCTAssertEqual(state.replacements.count, 0)
-        XCTAssertEqual(state.customWords.map(\.text), ["FluidVoice", "GEMBA-E"])
+        XCTAssertEqual(state.customWords.map(\.text), ["SpeachText1.0", "GEMBA-E"])
         XCTAssertEqual(state.customWords.map(\.weight), [13.0, 10.0])
         XCTAssertEqual(state.customWords.map(\.aliases), [[], []])
     }
@@ -1193,7 +1193,7 @@ final class DictationE2ETests: XCTestCase {
           "count": 2,
           "items": [
             {
-              "text": "FluidVoice",
+              "text": "SpeachText1.0",
               "weight": 10.0,
               "aliases": ["fluid voice"]
             },
@@ -1213,7 +1213,7 @@ final class DictationE2ETests: XCTestCase {
         )
 
         XCTAssertEqual(state.replacements.count, 0)
-        XCTAssertEqual(state.customWords.map(\.text), ["FluidVoice", "Barath"])
+        XCTAssertEqual(state.customWords.map(\.text), ["SpeachText1.0", "Barath"])
         XCTAssertEqual(state.customWords.map(\.weight), [10.0, 10.0])
         XCTAssertEqual(state.customWords.map(\.aliases), [[], []])
     }
@@ -1831,7 +1831,7 @@ final class DictationE2ETests: XCTestCase {
     func testPrivateAIProviderLocalRuntimeOnlyHandlesPrivateModels() {
         self.withRestoredDefaults(keys: [self.privateAILocalModelPathKey]) {
             let tempURL = FileManager.default.temporaryDirectory
-                .appendingPathComponent("FluidVoice-PrivateAI-\(UUID().uuidString).gguf")
+                .appendingPathComponent("SpeachText1.0-PrivateAI-\(UUID().uuidString).gguf")
             XCTAssertTrue(FileManager.default.createFile(atPath: tempURL.path, contents: Data(), attributes: nil))
             defer { try? FileManager.default.removeItem(at: tempURL) }
 
@@ -1862,7 +1862,7 @@ final class DictationE2ETests: XCTestCase {
         ) {
             let settings = SettingsStore.shared
             let tempURL = FileManager.default.temporaryDirectory
-                .appendingPathComponent("FluidVoice-PrivateAI-\(UUID().uuidString).gguf")
+                .appendingPathComponent("SpeachText1.0-PrivateAI-\(UUID().uuidString).gguf")
             XCTAssertTrue(FileManager.default.createFile(atPath: tempURL.path, contents: Data(), attributes: nil))
             defer { try? FileManager.default.removeItem(at: tempURL) }
 
@@ -2005,16 +2005,16 @@ final class DictationE2ETests: XCTestCase {
 
     func testRollbackBackupsPreferFilenameTimestampOverModificationDate() {
         let firstBackupWithNewestModificationDate = URL(
-            fileURLWithPath: "/tmp/FluidVoice-1.5.11-beta.1-100.app"
+            fileURLWithPath: "/tmp/SpeachText1.0-1.5.11-beta.1-100.app"
         )
         let secondBackup = URL(
-            fileURLWithPath: "/tmp/FluidVoice-1.5.11-beta.2-150.app"
+            fileURLWithPath: "/tmp/SpeachText1.0-1.5.11-beta.2-150.app"
         )
         let thirdBackup = URL(
-            fileURLWithPath: "/tmp/FluidVoice-1.5.11-beta.3-rollback-200.app"
+            fileURLWithPath: "/tmp/SpeachText1.0-1.5.11-beta.3-rollback-200.app"
         )
         let fourthBackupWithOldestModificationDate = URL(
-            fileURLWithPath: "/tmp/FluidVoice-1.5.11-beta.4-rollback-300.app"
+            fileURLWithPath: "/tmp/SpeachText1.0-1.5.11-beta.4-rollback-300.app"
         )
         let modificationDates = [
             firstBackupWithNewestModificationDate: Date(timeIntervalSince1970: 500),
@@ -2113,7 +2113,7 @@ final class DictationE2ETests: XCTestCase {
 
     func testValidateDownloadedFile_rejectsHTMLBodyAndAcceptsJSON() throws {
         let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("FluidVoice-ValidateTest-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("SpeachText1.0-ValidateTest-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: dir) }
 
@@ -2147,7 +2147,7 @@ final class DictationE2ETests: XCTestCase {
         // while a real model artifact must not be flagged, and an unreadable path must be
         // treated as valid (never deleted on uncertainty).
         let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("FluidVoice-CachedMarkupTest-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("SpeachText1.0-CachedMarkupTest-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: dir) }
 
@@ -2172,7 +2172,7 @@ final class DictationE2ETests: XCTestCase {
         // re-downloads instead of trusting a file-existence/manifest check, while a valid cached
         // tree must not be flagged, and missing/empty required entries stay conservative.
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("FluidVoice-CachedPayloadTest-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("SpeachText1.0-CachedPayloadTest-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
 
@@ -2236,7 +2236,7 @@ final class DictationE2ETests: XCTestCase {
 
         // Local runs: isolate per test execution.
         let base = FileManager.default.temporaryDirectory
-            .appendingPathComponent("FluidVoiceTests", isDirectory: true)
+            .appendingPathComponent("SpeachText1.0Tests", isDirectory: true)
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         return base.appendingPathComponent("WhisperModels", isDirectory: true)
     }

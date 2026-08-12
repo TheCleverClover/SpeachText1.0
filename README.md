@@ -1,5 +1,7 @@
 # SpeachText1.0
 
+![SpeachText1.0 — private speech transformed into text](Branding/SpeachText1.0-Release-Hero.png)
+
 **SpeachText1.0** is a local-first macOS dictation application. It turns speech into text in any application, supports multiple on-device speech engines, offers optional local AI cleanup, and includes an explicitly controlled Command Mode for Mac automation.
 
 > The project name intentionally uses the spelling **SpeachText1.0**.

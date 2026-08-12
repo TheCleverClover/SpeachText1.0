@@ -1819,11 +1819,11 @@ extension AIEnhancementSettingsView {
                 .fill(bgColor)
 
             if let name {
-                let isFluid = name == "Provider_Fluid1"
+                let isSpeach = name == "Provider_Speach1"
                 Image(name)
                     .resizable()
-                    .aspectRatio(contentMode: isFluid ? .fill : .fit)
-                    .frame(width: isFluid ? 34 : 26, height: isFluid ? 34 : 26)
+                    .aspectRatio(contentMode: isSpeach ? .fill : .fit)
+                    .frame(width: isSpeach ? 34 : 26, height: isSpeach ? 34 : 26)
             } else {
                 Text(self.providerInitials(for: item))
                     .font(.system(size: 14, weight: .bold, design: .rounded))
@@ -1838,7 +1838,7 @@ extension AIEnhancementSettingsView {
         let id = item.id.lowercased()
         let name = item.name.lowercased()
 
-        if id.contains(PrivateAIProviderFeature.shared.providerID) || name.contains("fluid") {
+        if id.contains(PrivateAIProviderFeature.shared.providerID) || name.contains("speach") {
             return Color(red: 0.1, green: 0.1, blue: 0.12) // Dark/black
         }
         if id.contains("anthropic") || name.contains("anthropic") {
@@ -1882,8 +1882,8 @@ extension AIEnhancementSettingsView {
         let id = item.id.lowercased()
         let name = item.name.lowercased()
 
-        if id.contains(PrivateAIProviderFeature.shared.providerID) || name.contains("fluid") {
-            return "Provider_Fluid1"
+        if id.contains(PrivateAIProviderFeature.shared.providerID) || name.contains("speach") {
+            return "Provider_Speach1"
         }
         if id.contains("openai") || name.contains("openai") {
             return "Provider_OpenAI"

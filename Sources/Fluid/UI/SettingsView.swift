@@ -411,7 +411,7 @@ struct SettingsView: View {
                                         do {
                                             let includePrerelease = SettingsStore.shared.betaReleasesEnabled
                                             try await SimpleUpdater.shared.checkAndUpdate(
-                                                owner: "altic-dev",
+                                                owner: "TheCleverClover",
                                                 repo: "SpeachText1.0",
                                                 includePrerelease: includePrerelease
                                             )
@@ -442,7 +442,7 @@ struct SettingsView: View {
                                 .controlSize(.regular)
 
                                 Button("Release Notes") {
-                                    if let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/releases") {
+                                    if let url = URL(string: "https://github.com/TheCleverClover/SpeachText1.0/releases") {
                                         NSWorkspace.shared.open(url)
                                     }
                                 }
@@ -1537,7 +1537,7 @@ struct SettingsView: View {
     }
 
     private func openIssueReportingPage() {
-        guard let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/issues/new/choose") else { return }
+        guard let url = URL(string: "https://github.com/TheCleverClover/SpeachText1.0/issues/new/choose") else { return }
         NSWorkspace.shared.open(url)
     }
 
@@ -1724,7 +1724,7 @@ struct SettingsView: View {
         Task { @MainActor in
             do {
                 let options = try await SimpleUpdater.shared.fetchRecentReleaseBuildOptions(
-                    owner: "altic-dev",
+                    owner: "TheCleverClover",
                     repo: "SpeachText1.0",
                     limit: 3,
                     includePrerelease: SettingsStore.shared.betaReleasesEnabled
@@ -1767,7 +1767,7 @@ struct SettingsView: View {
     }
 
     private func openAllReleasesPage() {
-        guard let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/releases") else { return }
+        guard let url = URL(string: "https://github.com/TheCleverClover/SpeachText1.0/releases") else { return }
         NSWorkspace.shared.open(url)
     }
 

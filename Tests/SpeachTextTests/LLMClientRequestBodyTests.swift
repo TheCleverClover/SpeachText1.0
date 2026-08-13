@@ -2,7 +2,7 @@
 import Foundation
 import XCTest
 
-// Regression tests for https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/issues/295
+// Regression tests for https://github.com/TheCleverClover/SpeachText1.0/issues/295
 // Ollama and compatible OpenAI-format providers treat an absent `stream` key as true.
 // The fix is to always send the key explicitly, whether streaming or not.
 
@@ -201,7 +201,7 @@ final class LLMClientRequestBodyTests: XCTestCase {
 
 @MainActor
 final class LLMClientStreamingTests: XCTestCase {
-    // Regression test for https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/issues/445
+    // Regression test for https://github.com/TheCleverClover/SpeachText1.0/issues/445
     func testReasoningContentDeltaPreservesChunkedToolCall() async throws {
         let client = makeClient()
         var config = LLMClient.Config(

@@ -4,7 +4,7 @@ import XCTest
 // Regression tests for the Anthropic `temperature` deprecation handling.
 // Newer Anthropic models (Opus 4.7+, Sonnet 5, Fable/Mythos 5) reject the `temperature`
 // parameter with HTTP 400 "`temperature` is deprecated for this model."
-// See https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/issues/285 (Opus 4.7) — the same failure
+// See https://github.com/TheCleverClover/SpeachText1.0/issues/285 (Opus 4.7) — the same failure
 // recurred for Sonnet 5 because the check only matched claude-opus-4-7.
 // Sonnet 4.6 and older still accept `temperature` (verified against the live API)
 // and must keep receiving the app's tuned values.

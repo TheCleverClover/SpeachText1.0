@@ -75,7 +75,7 @@ struct FeedbackView: View {
                                     .font(.system(size: 16, weight: .semibold))
                                     .foregroundStyle(self.theme.palette.primaryText)
 
-                                Text("Give us a star on GitHub, or support continued free development to help make local dictation even better.")
+                                Text("Give SpeachText1.0 a star on GitHub to help others find private local dictation.")
                                     .font(.system(size: 13))
                                     .foregroundStyle(self.theme.palette.secondaryText)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -84,7 +84,7 @@ struct FeedbackView: View {
                             Spacer()
 
                             HStack(spacing: 10) {
-                                if let githubURL = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0") {
+                                if let githubURL = URL(string: "https://github.com/TheCleverClover/SpeachText1.0") {
                                     Link(destination: githubURL) {
                                         HStack(spacing: 8) {
                                             Image(systemName: "star.fill")
@@ -99,21 +99,6 @@ struct FeedbackView: View {
                                     .buttonHoverEffect()
                                 }
 
-                                if let sponsorURL = URL(string: "https://github.com/sponsors/altic-dev") {
-                                    Link(destination: sponsorURL) {
-                                        HStack(spacing: 8) {
-                                            Image(systemName: "heart.fill")
-                                            Text("Support SpeachText1.0")
-                                                .fontWeight(.semibold)
-                                        }
-                                        .font(.system(size: 14))
-                                        .padding(.horizontal, 20)
-                                        .padding(.vertical, 10)
-                                    }
-                                    .fluidButton(.glass, size: .medium)
-                                    .buttonHoverEffect()
-                                    .help("Sponsor Altic on GitHub")
-                                }
                             }
                         }
                     }

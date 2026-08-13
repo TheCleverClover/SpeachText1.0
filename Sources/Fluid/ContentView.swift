@@ -1152,7 +1152,7 @@ struct ContentView: View {
     }
 
     private func openIssueReportingPage() {
-        guard let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/issues/new/choose") else { return }
+        guard let url = URL(string: "https://github.com/TheCleverClover/SpeachText1.0/issues/new/choose") else { return }
         NSWorkspace.shared.open(url)
     }
 

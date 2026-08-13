@@ -307,9 +307,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             "Manual update check requested. Current version: \(currentVersion)",
             source: "AppDelegate"
         )
-        DebugLogger.shared.info("Checking repository: YOUR_GITHUB_USERNAME/SpeachText1.0", source: "AppDelegate")
+        DebugLogger.shared.info("Checking repository: TheCleverClover/SpeachText1.0", source: "AppDelegate")
         DebugLogger.shared.debug("🔍 DEBUG: Manual update check started - Current version: \(currentVersion)", source: "AppDelegate")
-        DebugLogger.shared.debug("🔍 DEBUG: Repository: YOUR_GITHUB_USERNAME/SpeachText1.0", source: "AppDelegate")
+        DebugLogger.shared.debug("🔍 DEBUG: Repository: TheCleverClover/SpeachText1.0", source: "AppDelegate")
         let includePrerelease = SettingsStore.shared.betaReleasesEnabled
         DebugLogger.shared.info(
             "Beta releases opt-in: \(SettingsStore.shared.betaReleasesEnabled)",
@@ -320,7 +320,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             do {
                 // Use our tolerant updater to handle v-prefixed tags and 2-part versions
                 try await SimpleUpdater.shared.checkAndUpdate(
-                    owner: "altic-dev",
+                    owner: "TheCleverClover",
                     repo: "SpeachText1.0",
                     includePrerelease: includePrerelease
                 )
@@ -334,7 +334,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                         title: isBeta ? "No Beta Updates" : "No Updates",
                         message: isBeta
                             ? "You're already running the latest build available in the beta channel."
-                            : "You're already running the latest version of Fluid!"
+                            : "You're already running the latest version of SpeachText1.0!"
                     )
                 } else {
                     DebugLogger.shared.error("Update check failed: \(error)", source: "AppDelegate")
@@ -364,12 +364,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
             // Wait 3 seconds after launch before checking
             try? await Task.sleep(nanoseconds: 3_000_000_000)
 
-            DebugLogger.shared.info("Performing automatic update check for YOUR_GITHUB_USERNAME/SpeachText1.0", source: "AppDelegate")
+            DebugLogger.shared.info("Performing automatic update check for TheCleverClover/SpeachText1.0", source: "AppDelegate")
 
             do {
                 let includePrerelease = SettingsStore.shared.betaReleasesEnabled
                 let result = try await SimpleUpdater.shared.checkForUpdate(
-                    owner: "altic-dev",
+                    owner: "TheCleverClover",
                     repo: "SpeachText1.0",
                     includePrerelease: includePrerelease
                 )

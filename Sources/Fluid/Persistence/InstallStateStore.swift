@@ -16,7 +16,7 @@ final class InstallStateStore {
 
     private init() {}
 
-    /// Returns true only for a genuinely new installation. Existing FluidVoice users are
+    /// Returns true only for a genuinely new installation. Existing upstream-app users are
     /// migrated from the old local timestamp without being treated as new installs.
     @discardableResult
     nonisolated func ensureFirstOpenRecorded() -> Bool {

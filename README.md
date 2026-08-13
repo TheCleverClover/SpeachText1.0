@@ -41,7 +41,7 @@ Command Mode is available and enabled by default, but it is never silent. Destru
 ## Build from source
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/TheCleverClover/SpeachText1.0.git
 cd SpeachText1.0
 open SpeachText1.0.xcodeproj
 ```

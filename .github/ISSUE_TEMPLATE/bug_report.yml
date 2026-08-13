@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         If you are unsure whether this is a SpeachText1.0 bug, please start a Discussion first:
-        https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/discussions
+        https://github.com/TheCleverClover/SpeachText1.0/discussions
   - type: textarea
     id: description
     attributes:

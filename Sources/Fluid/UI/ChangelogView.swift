@@ -7,7 +7,7 @@ struct ChangelogView: View {
     @State private var isRefreshing = false
     @State private var errorMessage: String?
 
-    private let owner = "altic-dev"
+    private let owner = "TheCleverClover"
     private let repo = "SpeachText1.0"
     private let releaseLimit = 3
 
@@ -310,8 +310,7 @@ private struct ChangelogNoteBlock: View {
         private static func isBoilerplateLine(_ line: String) -> Bool {
             let lowercased = line.lowercased()
             return lowercased.contains("report issues:") ||
-                lowercased.contains("github.com/altic-dev/fluidvoice/issues") ||
-                lowercased.contains("github.com/altic-dev/fluid-oss/issues")
+                lowercased.contains("github.com/thecleverclover/speachtext1.0/issues")
         }
     }
 

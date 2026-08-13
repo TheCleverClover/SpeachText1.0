@@ -717,7 +717,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         Task { @MainActor in
             do {
                 try await SimpleUpdater.shared.checkAndUpdate(
-                    owner: "altic-dev",
+                    owner: "TheCleverClover",
                     repo: "SpeachText1.0",
                     includePrerelease: SettingsStore.shared.betaReleasesEnabled
                 )
@@ -790,7 +790,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
     }
 
     private func openIssueReportingPage() {
-        guard let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/issues/new/choose") else { return }
+        guard let url = URL(string: "https://github.com/TheCleverClover/SpeachText1.0/issues/new/choose") else { return }
         NSWorkspace.shared.open(url)
     }
 
@@ -798,7 +798,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         Task { @MainActor in
             do {
                 let options = try await SimpleUpdater.shared.fetchRecentReleaseBuildOptions(
-                    owner: "altic-dev",
+                    owner: "TheCleverClover",
                     repo: "SpeachText1.0",
                     limit: 3,
                     includePrerelease: SettingsStore.shared.betaReleasesEnabled
@@ -841,7 +841,7 @@ final class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
     }
 
     private func openAllReleasesPage() {
-        guard let url = URL(string: "https://github.com/YOUR_GITHUB_USERNAME/SpeachText1.0/releases") else { return }
+        guard let url = URL(string: "https://github.com/TheCleverClover/SpeachText1.0/releases") else { return }
         NSWorkspace.shared.open(url)
     }
 

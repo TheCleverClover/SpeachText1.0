@@ -213,6 +213,9 @@ scratch/
 assets/
 .swiftpm/
 scripts/
+!scripts/
+!scripts/package_release.sh
+!scripts/verify_release.sh
 
 # Benchmark / eval reports (local-only)
 benchmark_reports/

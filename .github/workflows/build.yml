@@ -18,15 +18,15 @@ concurrency:
 jobs:
   macos:
     name: Apple Silicon macOS build
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Select Xcode 16.4
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+      - name: Use macOS 26 default Xcode
+        run: xcode-select --print-path
 
       - name: Show environment
         run: |

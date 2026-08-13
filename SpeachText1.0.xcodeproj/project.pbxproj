@@ -661,8 +661,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/altic-dev/FluidAudio.git";
 			requirement = {
-				branch = "B/cohere-coreml-asr";
-				kind = branch;
+				kind = revision;
+				revision = 543395149d02100321966fd3312ea55333d6fc2f;
 			};
 		};
 		7C3697872ED70F9C005874CE /* XCRemoteSwiftPackageReference "DynamicNotchKit" */ = {

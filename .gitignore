@@ -214,6 +214,7 @@ assets/
 .swiftpm/
 scripts/
 !scripts/
+scripts/*
 !scripts/package_release.sh
 !scripts/verify_release.sh
 
@@ -226,3 +227,6 @@ sample/
 .codex
 AGENTS.md
 builds/
+Branding/Walkthrough/clips/
+Branding/Walkthrough/narration/
+Branding/Walkthrough/output/

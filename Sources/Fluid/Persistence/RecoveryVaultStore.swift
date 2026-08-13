@@ -35,7 +35,7 @@ struct RecoveryVaultRecord: Codable, Equatable, Identifiable, Sendable {
         self.text = text
         self.appName = appName
         self.bundleID = bundleID
-        self.targetPID = targetPID.map(Int32.init)
+        self.targetPID = targetPID.map { Int32(truncatingIfNeeded: $0) }
         self.source = source
         self.undoneAt = undoneAt
     }

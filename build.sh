@@ -43,6 +43,7 @@ run_public_build() {
         -destination 'platform=macOS'
         -derivedDataPath "${DERIVED_DATA_PATH}"
         -skipPackagePluginValidation
+        -skipMacroValidation
         build
     )
 

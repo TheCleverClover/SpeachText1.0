@@ -61,6 +61,7 @@ jobs:
             -derivedDataPath DerivedData \
             -clonedSourcePackagesDirPath .build/SourcePackages \
             -skipPackagePluginValidation \
+            -skipMacroValidation \
             -skip-testing:SpeachTextTests/DictationE2ETests/testDictationEndToEnd_whisperTiny_transcribesFixture \
             CODE_SIGN_IDENTITY='' \
             CODE_SIGNING_REQUIRED=NO \

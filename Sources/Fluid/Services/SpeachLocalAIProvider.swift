@@ -329,10 +329,10 @@ private actor SpeachLocalAIRuntime {
         }
 
         let startedAt = ProcessInfo.processInfo.systemUptime
-        let session = ChatSession(
+        let session = MLXLMCommon.ChatSession(
             container,
             instructions: SpeachLocalAIConstants.systemInstructions,
-            generateParameters: GenerateParameters(temperature: 0.15)
+            generateParameters: MLXLMCommon.GenerateParameters(temperature: 0.15)
         )
         let prompt = """
         Destination application: \(context.appName)

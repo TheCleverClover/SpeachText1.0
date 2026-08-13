@@ -10,7 +10,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/mxcl/AppUpdater.git", from: "1.0.0"),
-        .package(url: "https://github.com/TheCleverClover/FluidAudio-SpeachText.git", revision: "2e0a74af0d8a755e98b3dbe566745742d073df75"),
+        .package(url: "https://github.com/TheCleverClover/FluidAudio-SpeachText.git", revision: "5280249499685947b763ef8bb300be60130dde5b"),
         .package(url: "https://github.com/mxcl/PromiseKit", from: "6.0.0"),
         .package(url: "https://github.com/altic-dev/DynamicNotchKit.git", branch: "main"),
         .package(url: "https://github.com/altic-dev/transcribe-cpp-swift.git", exact: "0.1.2"),

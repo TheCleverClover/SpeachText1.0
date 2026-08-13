@@ -18,7 +18,7 @@ enum NotificationService {
         let center = UNUserNotificationCenter.current()
         center.getNotificationSettings { settings in
             switch settings.authorizationStatus {
-            case .authorized, .provisional, .ephemeral:
+            case .authorized, .provisional:
                 self.deliverAIProcessingFallback(error: error, using: center)
             case .notDetermined:
                 center.requestAuthorization(options: [.alert, .sound]) { granted, requestError in
@@ -48,7 +48,7 @@ enum NotificationService {
         let center = UNUserNotificationCenter.current()
         center.getNotificationSettings { settings in
             switch settings.authorizationStatus {
-            case .authorized, .provisional, .ephemeral:
+            case .authorized, .provisional:
                 self.deliverCommandModeFailure(error: error, using: center)
             case .notDetermined:
                 center.requestAuthorization(options: [.alert, .sound]) { granted, requestError in
@@ -76,8 +76,7 @@ enum NotificationService {
         let center = UNUserNotificationCenter.current()
         center.getNotificationSettings { settings in
             guard settings.authorizationStatus == .authorized ||
-                  settings.authorizationStatus == .provisional ||
-                  settings.authorizationStatus == .ephemeral
+                  settings.authorizationStatus == .provisional
             else { return }
 
             let content = UNMutableNotificationContent()

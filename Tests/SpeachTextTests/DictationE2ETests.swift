@@ -171,9 +171,9 @@ final class DictationE2ETests: XCTestCase {
         XCTAssertEqual(state.replacements.count, 1)
         XCTAssertEqual(state.replacements.first?.triggers, ["fluid voice", "fluid boys"])
         XCTAssertEqual(state.replacements.first?.replacement, "SpeachText1.0")
-        XCTAssertEqual(state.customWords.map(\.text), ["SpeachText1.0", "Barath"])
-        XCTAssertEqual(state.customWords.map(\.weight), [10.0, 10.0])
-        XCTAssertEqual(state.customWords.map(\.aliases), [[], []])
+        XCTAssertEqual(state.customWords.map(\.text), ["SpeachText1.0", "fluidvoice", "Barath"])
+        XCTAssertEqual(state.customWords.map(\.weight), [10.0, 10.0, 10.0])
+        XCTAssertEqual(state.customWords.map(\.aliases), [[], [], []])
     }
 
     func testDictionaryTransferImport_mergeDedupesAndMovesDuplicateTriggers() throws {
@@ -666,7 +666,7 @@ final class DictationE2ETests: XCTestCase {
 
         let entries = CustomDictionaryTrainingMerge.mergedEntries(
             current: [existingReplacement, oldReplacement],
-            replacement: " fluidvoice ",
+            replacement: " SpeachText1.0 ",
             triggers: ["Fluid Voice.", "fluid boys", "SpeachText1.0", ""]
         )
 
@@ -996,8 +996,8 @@ final class DictationE2ETests: XCTestCase {
     }
 
     func testAutomaticDictionaryCorrectionIgnoresCaseOnlyEdit() {
-        let before = "fluidvoice"
-        let after = "SpeachText1.0"
+        let before = "speachtext"
+        let after = "SpeachText"
         let insertedRange = NSRange(location: 0, length: (before as NSString).length)
 
         XCTAssertNil(AutomaticDictionaryCorrectionDetector.candidate(
@@ -1727,11 +1727,7 @@ final class DictationE2ETests: XCTestCase {
             XCTAssertEqual(settings.dictationPromptSelection(for: .primary), .profile(custom.id))
 
             settings.selectedProviderID = PrivateAIProviderFeature.shared.providerID
-            if PrivateFeatures.privateAIProvider {
-                XCTAssertEqual(settings.dictationPromptSelection(for: .primary), .privateAI)
-            } else {
-                XCTAssertEqual(settings.dictationPromptSelection(for: .primary), .profile(custom.id))
-            }
+            XCTAssertEqual(settings.dictationPromptSelection(for: .primary), .profile(custom.id))
 
             settings.setDictationPromptSelection(.off)
             XCTAssertEqual(settings.dictationPromptSelection(for: .primary), .off)
@@ -1760,16 +1756,10 @@ final class DictationE2ETests: XCTestCase {
 
             settings.selectedProviderID = PrivateAIProviderFeature.shared.providerID
             settings.setDictationPromptSelection(.default)
-            XCTAssertEqual(
-                settings.dictationPromptSelection(for: .primary),
-                PrivateFeatures.privateAIProvider ? .privateAI : .default
-            )
+            XCTAssertEqual(settings.dictationPromptSelection(for: .primary), .default)
 
             settings.setDictationPromptSelection(.profile(custom.id))
-            XCTAssertEqual(
-                settings.dictationPromptSelection(for: .primary),
-                PrivateFeatures.privateAIProvider ? .privateAI : .profile(custom.id)
-            )
+            XCTAssertEqual(settings.dictationPromptSelection(for: .primary), .profile(custom.id))
 
             settings.setDictationPromptSelection(.off)
             XCTAssertEqual(settings.dictationPromptSelection(for: .primary), .off)
@@ -1831,8 +1821,10 @@ final class DictationE2ETests: XCTestCase {
     func testPrivateAIProviderLocalRuntimeOnlyHandlesPrivateModels() {
         self.withRestoredDefaults(keys: [self.privateAILocalModelPathKey]) {
             let tempURL = FileManager.default.temporaryDirectory
-                .appendingPathComponent("SpeachText1.0-PrivateAI-\(UUID().uuidString).gguf")
-            XCTAssertTrue(FileManager.default.createFile(atPath: tempURL.path, contents: Data(), attributes: nil))
+                .appendingPathComponent("SpeachText1.0-PrivateAI-\(UUID().uuidString)", isDirectory: true)
+            try? FileManager.default.createDirectory(at: tempURL, withIntermediateDirectories: true)
+            XCTAssertTrue(FileManager.default.createFile(atPath: tempURL.appendingPathComponent("config.json").path, contents: Data("{}".utf8), attributes: nil))
+            XCTAssertTrue(FileManager.default.createFile(atPath: tempURL.appendingPathComponent("model.safetensors").path, contents: Data(), attributes: nil))
             defer { try? FileManager.default.removeItem(at: tempURL) }
 
             UserDefaults.standard.set(tempURL.path, forKey: self.privateAILocalModelPathKey)
@@ -1862,8 +1854,10 @@ final class DictationE2ETests: XCTestCase {
         ) {
             let settings = SettingsStore.shared
             let tempURL = FileManager.default.temporaryDirectory
-                .appendingPathComponent("SpeachText1.0-PrivateAI-\(UUID().uuidString).gguf")
-            XCTAssertTrue(FileManager.default.createFile(atPath: tempURL.path, contents: Data(), attributes: nil))
+                .appendingPathComponent("SpeachText1.0-PrivateAI-\(UUID().uuidString)", isDirectory: true)
+            try? FileManager.default.createDirectory(at: tempURL, withIntermediateDirectories: true)
+            XCTAssertTrue(FileManager.default.createFile(atPath: tempURL.appendingPathComponent("config.json").path, contents: Data("{}".utf8), attributes: nil))
+            XCTAssertTrue(FileManager.default.createFile(atPath: tempURL.appendingPathComponent("model.safetensors").path, contents: Data(), attributes: nil))
             defer { try? FileManager.default.removeItem(at: tempURL) }
 
             UserDefaults.standard.set(tempURL.path, forKey: self.privateAILocalModelPathKey)

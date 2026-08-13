@@ -42,6 +42,7 @@ run_public_build() {
         -configuration Debug
         -destination 'platform=macOS'
         -derivedDataPath "${DERIVED_DATA_PATH}"
+        -skipPackagePluginValidation
         build
     )
 

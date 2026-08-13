@@ -48,15 +48,17 @@ if [ ! -d "${APP_PATH}" ]; then
 fi
 
 # Ad-hoc signing keeps the distributed bundle internally consistent without
-# pretending to be Developer ID signed or Apple notarized.
-codesign --force --deep --sign - --timestamp=none --options runtime \
-  --entitlements "${ROOT_DIR}/Fluid.entitlements" \
-  "${APP_PATH}"
-codesign --verify --deep --strict --verbose=2 "${APP_PATH}"
-
+# pretending to be Developer ID signed or Apple notarized. Do not apply a
+# distribution entitlement profile: it would misrepresent this unsigned build.
+printf 'Ad-hoc signing application bundle...\n'
+codesign --force --deep --sign - --timestamp=none "${APP_PATH}"
+printf 'Verifying application bundle signature...\n'
+codesign --verify --deep --verbose=2 "${APP_PATH}"
+printf 'Creating ZIP installer...\n'
 /usr/bin/ditto -c -k --sequesterRsrc --keepParent \
   "${APP_PATH}" "${DIST_DIR}/${ARCHIVE_STEM}.zip"
 
+printf 'Creating drag-to-Applications DMG...\n'
 mkdir -p "${DMG_ROOT}"
 /usr/bin/ditto "${APP_PATH}" "${DMG_ROOT}/${APP_NAME}.app"
 ln -s /Applications "${DMG_ROOT}/Applications"

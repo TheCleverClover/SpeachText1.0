@@ -14,8 +14,8 @@ All SpeachText1.0 modifications remain available under GPLv3. Third-party depend
 
 ## FluidAudio compatibility fork
 
-SpeachText1.0 uses [TheCleverClover/FluidAudio-SpeachText](https://github.com/TheCleverClover/FluidAudio-SpeachText) at commit `2c7755ba2e0866c0e0db41d686e228270eab8fa0`. It is based on ALTIC's public FluidAudio revision `543395149d02100321966fd3312ea55333d6fc2f` from the `B/cohere-coreml-asr` branch.
+SpeachText1.0 uses [TheCleverClover/FluidAudio-SpeachText](https://github.com/TheCleverClover/FluidAudio-SpeachText) at commit `2e0a74af0d8a755e98b3dbe566745742d073df75`. It is based on ALTIC's public FluidAudio revision `543395149d02100321966fd3312ea55333d6fc2f` from the `B/cohere-coreml-asr` branch.
 
-The fork preserves macOS 15 compatibility by declaring the two Granite Core ML model-container value types as `@unchecked Sendable`. The model containers are loaded into, and subsequently owned by, their respective actors; the patch addresses Swift 6's compile-time transfer check without changing speech-model behavior or data handling.
+The fork preserves macOS 15 compatibility by removing one Core ML `.int8` enumeration case that is not present in the macOS 15 SDK. The affected path is unavailable on macOS 15; all upstream speech-model and pronunciation APIs remain intact.
 
 The fork retains the upstream license and source history. Its use does not imply endorsement by ALTIC or FluidAudio contributors.

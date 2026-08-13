@@ -47,14 +47,10 @@ if [ ! -d "${APP_PATH}" ]; then
   exit 1
 fi
 
-# Ad-hoc signing keeps the distributed bundle internally consistent without
-# pretending to be Developer ID signed or Apple notarized. Do not apply a
-# distribution entitlement profile: it would misrepresent this unsigned build.
-printf 'Ad-hoc signing application bundle...\n'
-codesign --force --deep --sign - --timestamp=none "${APP_PATH}"
-printf 'Verifying application bundle signature...\n'
-codesign --verify --deep --verbose=2 "${APP_PATH}"
-printf 'Creating ZIP installer...\n'
+# The current CTranscribe dependency embeds a malformed framework bundle that
+# cannot be re-signed reliably. Ship the build explicitly unsigned rather than
+# claiming a signature or notarization that does not exist.
+printf 'Creating unsigned ZIP installer...\n'
 /usr/bin/ditto -c -k --sequesterRsrc --keepParent \
   "${APP_PATH}" "${DIST_DIR}/${ARCHIVE_STEM}.zip"
 
@@ -81,7 +77,7 @@ cat > "${DIST_DIR}/release-manifest.json" <<EOF
   "version": "${VERSION}",
   "minimum_macos": "15.0",
   "architecture": "arm64",
-  "signing": "ad-hoc",
+  "signing": "unsigned",
   "notarized": false,
   "dmg": "${ARCHIVE_STEM}.dmg",
   "zip": "${ARCHIVE_STEM}.zip"

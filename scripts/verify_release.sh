@@ -54,12 +54,10 @@ case " ${ARCHS} " in
   *" arm64 "*) ;;
   *) echo "Application does not contain arm64: ${ARCHS}" >&2; exit 1 ;;
 esac
-codesign --verify --deep --verbose=2 "${ZIP_APP}"
 
 MOUNT_POINT="$(hdiutil attach "${DMG_PATH}" -readonly -nobrowse | awk 'END {print $NF}')"
 [ -d "${MOUNT_POINT}/SpeachText1.0.app" ] || { echo "DMG does not contain SpeachText1.0.app" >&2; exit 1; }
 [ -L "${MOUNT_POINT}/Applications" ] || { echo "DMG does not contain an Applications shortcut" >&2; exit 1; }
-codesign --verify --deep --verbose=2 "${MOUNT_POINT}/SpeachText1.0.app"
 hdiutil detach "${MOUNT_POINT}" -quiet
 MOUNT_POINT=""
 

@@ -30,9 +30,9 @@
     {
       "identity" : "fluidaudio",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/altic-dev/FluidAudio.git",
+      "location" : "https://github.com/TheCleverClover/FluidAudio-SpeachText.git",
       "state" : {
-        "revision" : "543395149d02100321966fd3312ea55333d6fc2f"
+        "revision" : "2c7755ba2e0866c0e0db41d686e228270eab8fa0"
       }
     },
     {

@@ -659,10 +659,10 @@
 /* Begin XCRemoteSwiftPackageReference section */
 		7C078DA32E3B386A00FB7CAC /* XCRemoteSwiftPackageReference "FluidAudio" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/altic-dev/FluidAudio.git";
+			repositoryURL = "https://github.com/TheCleverClover/FluidAudio-SpeachText.git";
 			requirement = {
 				kind = revision;
-				revision = 543395149d02100321966fd3312ea55333d6fc2f;
+				revision = 2c7755ba2e0866c0e0db41d686e228270eab8fa0;
 			};
 		};
 		7C3697872ED70F9C005874CE /* XCRemoteSwiftPackageReference "DynamicNotchKit" */ = {
